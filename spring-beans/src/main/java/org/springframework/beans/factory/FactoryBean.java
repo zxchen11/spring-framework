@@ -19,6 +19,9 @@ package org.springframework.beans.factory;
 import org.springframework.lang.Nullable;
 
 /**
+ * 应用场景：FactoryBean 通常是用来创建比较复杂的bean，一般的bean 直接用xml配置即可，
+ *  但如果一个bean的创建过程中涉及到很多其他的bean 和复杂的逻辑，用xml配置比较困难，这时可以考虑用FactoryBean。
+ * 应用案例： MyBatis3 提供 mybatis-spring项目中的 org.mybatis.spring.SqlSessionFactoryBean
  * Interface to be implemented by objects used within a {@link BeanFactory} which
  * are themselves factories for individual objects. If a bean implements this
  * interface, it is used as a factory for an object to expose, not directly as a
