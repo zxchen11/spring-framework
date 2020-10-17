@@ -163,6 +163,10 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		/**
+		 * 从一级缓存中取，如果有值，则返回。否则依次查找二级、三级缓存，如果最终从三级缓存中拿到值，
+		 * 则将bean对象升级到二级缓存，并把原值从三级缓存中移除。
+ 		 */
 		Object singletonObject = this.singletonObjects.get(beanName);
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
 			synchronized (this.singletonObjects) {
