@@ -238,7 +238,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		final String beanName = transformedBeanName(name);
 		Object bean;
 
-		// 从缓存（一级二级三级缓存依次获取，获取到就返回）中获取单例实例，如果获取到并且是无参构造函数，则将bean变量的值赋值。
+		/*
+		TODO 这里多级缓存用于解决循环依赖问题。
+			注：循环依赖只能是属性见的依赖，不能是构造函数中参数的循环依赖。
+		    从缓存（一级二级三级缓存依次获取，获取到就返回）中获取单例实例，如果获取到并且是无参构造函数，则将bean变量的值赋值。
+		 */
 		// Eagerly check singleton cache for manually registered singletons.
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
@@ -250,9 +254,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.trace("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
-			//重要程度5
-			// 如果获取的bean实例是一个FactoryBean实例，则调用FactoryBean的getObject(),且将返回的bean替换为getObject()的返回值。
-			// FactoryBean接口很重要，具体应用场景见FactoryBean接口注释。
+
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		} else {
 			// Fail if we're already creating this bean instance:
@@ -306,12 +308,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					}
 				}
 
+				/*
+				  TODO 重要程度 5
+				    单例实例第一次创建bean入口，这里的getSingleton方法中，调用了参数中匿名对象的getObject()
+				    在bean创建完成后，将bean放入到一级缓存，并从二三级缓存中移除:addSingleton(beanName, singletonObject);
+				 */
 				// Create bean instance.
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
 							//创建Bean实例
-							//我在这里加一行中文注释
 							return createBean(beanName, mbd, args);
 						} catch (BeansException ex) {
 							// Explicitly remove instance from singleton cache: It might have been put there
@@ -321,8 +327,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 							throw ex;
 						}
 					});
+					/*
+					TODO 重要程度 5
+						如果获取的bean实例是一个FactoryBean实例，则调用FactoryBean的getObject(),且将返回的bean替换为getObject()的返回值。
+						FactoryBean接口很重要，具体应用场景见FactoryBean接口注释。
+					 */
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				} else if (mbd.isPrototype()) {
+					// 如果是多例，则创建bean实例。
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
 					try {
