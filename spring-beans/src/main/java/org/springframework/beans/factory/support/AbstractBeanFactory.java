@@ -254,15 +254,18 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.trace("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
-
+			// 如果bean不是FactoryBean类型或者beanName以&开头，则直接返回。
+			// 否则将bean强转为FactoryBean类型，并调用getObject()方法返回。
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		} else {
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
+			// 多例不支持循环引用。多例时，如果返回指定的原型bean是否正在创建中，则抛出异常。
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
 
+			//如果父beanFactory不为空，并且当前beanFactory中不包含要获取的beanDefinition，则从父beanFactory中获取。
 			// Check if bean definition exists in this factory.
 			BeanFactory parentBeanFactory = getParentBeanFactory();
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
@@ -282,6 +285,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 			}
 
+			// 如果不是仅仅检查类型，则标记beanName对应的bean已经创建（将beanName添加到alreadyCreated中），
+			// 并且清除MergeBeanDefinitionMap中beanName的值。
 			if (!typeCheckOnly) {
 				markBeanAsCreated(beanName);
 			}
@@ -329,7 +334,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					});
 					/*
 					TODO 重要程度 5
-						如果获取的bean实例是一个FactoryBean实例，则调用FactoryBean的getObject(),且将返回的bean替换为getObject()的返回值。
+						如果bean不是FactoryBean类型或者beanName以&开头，则直接返回。
+						否则调用FactoryBean的getObject(),且将返回的bean替换为getObject()的返回值。
 						FactoryBean接口很重要，具体应用场景见FactoryBean接口注释。
 					 */
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
@@ -343,14 +349,24 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					} finally {
 						afterPrototypeCreation(beanName);
 					}
+					/*
+						如果bean不是FactoryBean类型或者beanName以&开头，则直接返回。
+						否则将bean强转为FactoryBean类型，并调用getObject()方法返回。
+					 */
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				} else {
+					/*
+						如果不是单例也不是多例，而是自定义的Scope，即@Scope注解的实例，从scopes中获取到指定名称的scope，
+						并调用get方法获取对象。如request session等。
+						如果需要自定义Scope，需要实现Scope接口，并注册到BeanFactory中，可以通过实现FactoryBeanPostProcessor接口来注册自定义Scope。
+					 */
 					String scopeName = mbd.getScope();
 					final Scope scope = this.scopes.get(scopeName);
 					if (scope == null) {
 						throw new IllegalStateException("No Scope registered for scope name '" + scopeName + "'");
 					}
 					try {
+						// 这里通过指定的scope获取bean的实例。
 						Object scopedInstance = scope.get(beanName, () -> {
 							beforePrototypeCreation(beanName);
 							try {
@@ -359,6 +375,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 								afterPrototypeCreation(beanName);
 							}
 						});
+						/*
+						如果bean不是FactoryBean类型或者beanName以&开头，则直接返回。
+						否则将bean强转为FactoryBean类型，并调用getObject()方法返回。
+					    */
 						bean = getObjectForBeanInstance(scopedInstance, name, beanName, mbd);
 					} catch (IllegalStateException ex) {
 						throw new BeanCreationException(beanName,
@@ -1021,6 +1041,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	protected boolean isPrototypeCurrentlyInCreation(String beanName) {
 		Object curVal = this.prototypesCurrentlyInCreation.get();
+		//如果curVal值为null，则不是多例
 		return (curVal != null &&
 				(curVal.equals(beanName) || (curVal instanceof Set && ((Set<?>) curVal).contains(beanName))));
 	}
@@ -1642,6 +1663,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 		}
 
+		// 如果bean不是FactoryBean类型或者beanName以&开头，则直接返回。
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
