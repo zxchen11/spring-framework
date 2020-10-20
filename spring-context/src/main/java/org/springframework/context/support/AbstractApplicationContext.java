@@ -981,6 +981,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				}
 			}
 
+			// 执行bean销毁前的方法，init-method,@preDestory,DisposableBean
 			// Destroy all cached singletons in the context's BeanFactory.
 			destroyBeans();
 
@@ -1006,6 +1007,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see org.springframework.beans.factory.config.ConfigurableBeanFactory#destroySingletons()
 	 */
 	protected void destroyBeans() {
+		// 执行bean销毁前的方法，init-method,@preDestory,DisposableBean
 		getBeanFactory().destroySingletons();
 	}
 

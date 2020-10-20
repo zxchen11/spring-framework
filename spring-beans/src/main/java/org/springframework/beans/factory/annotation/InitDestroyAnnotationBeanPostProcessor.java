@@ -16,24 +16,8 @@
 
 package org.springframework.beans.factory.annotation;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
@@ -44,6 +28,16 @@ import org.springframework.core.PriorityOrdered;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@link org.springframework.beans.factory.config.BeanPostProcessor} implementation
@@ -151,8 +145,10 @@ public class InitDestroyAnnotationBeanPostProcessor
 
 	@Override
 	public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
+		// 获取LifecycleMetadata对象，内部封装了初始化和销毁方法。
 		LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());
 		try {
+			//执行使用@PreDestroy标识的方法，可以有多个。
 			metadata.invokeDestroyMethods(bean, beanName);
 		}
 		catch (InvocationTargetException ex) {
@@ -310,6 +306,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 		}
 
 		public void invokeDestroyMethods(Object target, String beanName) throws Throwable {
+			// 销毁方法，一个类中的销毁方法可以声明多个，所以是一个集合。
 			Collection<LifecycleElement> checkedDestroyMethods = this.checkedDestroyMethods;
 			Collection<LifecycleElement> destroyMethodsToUse =
 					(checkedDestroyMethods != null ? checkedDestroyMethods : this.destroyMethods);
@@ -318,6 +315,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 					if (logger.isTraceEnabled()) {
 						logger.trace("Invoking destroy method on bean '" + beanName + "': " + element.getMethod());
 					}
+					//执行目标对象的销毁方法
 					element.invoke(target);
 				}
 			}
@@ -359,6 +357,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 		}
 
 		public void invoke(Object target) throws Throwable {
+			//执行目标对象的销毁方法。
 			ReflectionUtils.makeAccessible(this.method);
 			this.method.invoke(target, (Object[]) null);
 		}
