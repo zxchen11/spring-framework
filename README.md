@@ -28,3 +28,15 @@ Follow [@SpringCentral](https://twitter.com/springcentral), [@SpringFramework](h
 ## License
 
 The Spring Framework is released under version 2.0 of the [Apache License](http://www.apache.org/licenses/LICENSE-2.0).
+
+## License
+
+源码下载：git clone --branch v5.1.3.RELEASE https://gitee.com/wanglizhi00/spring-framework.git
+
+源码编译：到下载的spring源码路径执行gradle命令，gradlew :spring-oxm:compileTestJava
+
+## 将源码引入到maven项目中的library中
+
+# <img src="src/docs/asciidoc/images/open-library-settings.png" width="523" height="369">
+
+# <img src="src/docs/asciidoc/images/set-jar-maven-library.png" width="1096" height="377">
