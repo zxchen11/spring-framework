@@ -439,6 +439,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
+			// 这里如果满足条件，会调用 InstantiationAwareBeanPostProcessor.postProcessBeforeInstantiation()和
+			// BeanPostProcessor.postProcessAfterInitialization()，直接返回。
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
