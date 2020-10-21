@@ -31,12 +31,16 @@ The Spring Framework is released under version 2.0 of the [Apache License](http:
 
 ## 源码下载及编译
 
-源码下载：git clone --branch v5.1.3.RELEASE https://gitee.com/wanglizhi00/spring-framework.git
+1.源码下载：git clone --branch v5.1.3.RELEASE https://gitee.com/wanglizhi00/spring-framework.git
 
-源码编译：
+2.源码编译：
     
     到下载的spring源码路径执行gradle命令
         .\gradlew :spring-oxm:compileTestJava
+
+3.使用IDEA打开项目后，如果在IDEA中使用gradle重新编译模块乱码，添加以下JVM参数
+
+    -Dfile.encoding=UTF-8
 
 ## 源码引入到maven项目library中
 
