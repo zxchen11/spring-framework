@@ -33,7 +33,10 @@ The Spring Framework is released under version 2.0 of the [Apache License](http:
 
 源码下载：git clone --branch v5.1.3.RELEASE https://gitee.com/wanglizhi00/spring-framework.git
 
-源码编译：到下载的spring源码路径执行gradle命令，gradlew :spring-oxm:compileTestJava
+源码编译：
+    
+    到下载的spring源码路径执行gradle命令
+        .\gradlew :spring-oxm:compileTestJava
 
 ## 源码引入到maven项目library中
 
