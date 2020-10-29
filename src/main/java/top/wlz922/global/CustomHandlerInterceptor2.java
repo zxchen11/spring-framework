@@ -11,20 +11,20 @@ import javax.servlet.http.HttpServletResponse;
  * @author Eddie
  */
 @Slf4j
-public class CustomHandlerInterceptor implements HandlerInterceptor {
+public class CustomHandlerInterceptor2 implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		log.info("CustomHandlerInterceptor.preHandle() execute...");
+		log.info("CustomHandlerInterceptor2.preHandle() execute...");
 		return true;
 	}
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-		log.info("CustomHandlerInterceptor.postHandle() execute...");
+		log.info("CustomHandlerInterceptor2.postHandle() execute...");
 	}
 
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-		log.info("CustomHandlerInterceptor.afterCompletion() execute...");
+		log.info("CustomHandlerInterceptor2.afterCompletion() execute...");
 	}
 }
