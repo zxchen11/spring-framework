@@ -16,13 +16,9 @@
 
 package org.springframework.web.servlet.config.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import org.springframework.context.annotation.Import;
+
+import java.lang.annotation.*;
 
 /**
  * Adding this annotation to an {@code @Configuration} class imports the Spring MVC
@@ -98,6 +94,9 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
+// 这里支持了激活mvc各种组件功能，其中父类中有很多@Bean注解的方法，创建了许多可能需要的组件，
+// 比如RequestMappingHandlerMapping就是在这时候生成的URL-对象方法的映射，
+// RequestMappingHandlerMapping实现了InitializingBean，afterPropertiesSet方法中初始化了映射关系
 @Import(DelegatingWebMvcConfiguration.class)
 public @interface EnableWebMvc {
 }

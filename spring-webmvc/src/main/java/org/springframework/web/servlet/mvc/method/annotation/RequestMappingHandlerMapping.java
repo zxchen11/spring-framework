@@ -16,16 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.lang.Nullable;
@@ -46,6 +36,12 @@ import org.springframework.web.servlet.mvc.condition.CompositeRequestCondition;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Creates {@link RequestMappingInfo} instances from type and method-level
@@ -151,6 +147,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 		this.embeddedValueResolver = resolver;
 	}
 
+	/**
+	 * URL-对象方法的映射关系就是在这里初始化的
+	 */
 	@Override
 	public void afterPropertiesSet() {
 		this.config = new RequestMappingInfo.BuilderConfiguration();
@@ -160,7 +159,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 		this.config.setTrailingSlashMatch(this.useTrailingSlashMatch);
 		this.config.setRegisteredSuffixPatternMatch(this.useRegisteredSuffixPatternMatch);
 		this.config.setContentNegotiationManager(getContentNegotiationManager());
-
+		// 初始化URL-对象方法调用 的映射关系
 		super.afterPropertiesSet();
 	}
 
