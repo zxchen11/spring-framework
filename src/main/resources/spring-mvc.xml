@@ -28,7 +28,7 @@
 	http://www.springframework.org/schema/task
 	http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
-    <context:component-scan base-package="top.wlz922.controller" use-default-filters="false">
+    <context:component-scan base-package="top.wlz922.controller,top.wlz922.interceptor" use-default-filters="false">
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
         <!--<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Component"/>-->
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
@@ -103,7 +103,8 @@
             <!-- 需排除拦截的地址 -->
             <!-- <mvc:exclude-mapping path="/userController/login"/>  -->
             <!--<ref bean="userInterceptor"/>-->
-            <bean id="userInterceptor" class="top.wlz922.global.CustomHandlerInterceptor"></bean>
+            <ref bean="customHandlerInterceptor"/>
+            <!--<bean id="userInterceptor" class="top.wlz922.interceptor.CustomHandlerInterceptor"></bean>-->
         </mvc:interceptor>
         <!--<mvc:interceptor>
             <mvc:mapping path="/common/*"/>
