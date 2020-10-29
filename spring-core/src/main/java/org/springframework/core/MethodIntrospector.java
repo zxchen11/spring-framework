@@ -16,16 +16,16 @@
 
 package org.springframework.core;
 
+import org.springframework.lang.Nullable;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.springframework.lang.Nullable;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Defines the algorithm for searching for metadata-associated methods exhaustively
@@ -64,6 +64,7 @@ public final class MethodIntrospector {
 			specificHandlerType = ClassUtils.getUserClass(targetType);
 			handlerTypes.add(specificHandlerType);
 		}
+		// 获取类实现的所有接口
 		handlerTypes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetType));
 
 		for (Class<?> currentHandlerType : handlerTypes) {
@@ -75,6 +76,7 @@ public final class MethodIntrospector {
 				if (result != null) {
 					Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
 					if (bridgedMethod == specificMethod || metadataLookup.inspect(bridgedMethod) == null) {
+						// 方法-RequestMappingInfo映射
 						methodMap.put(specificMethod, result);
 					}
 				}
