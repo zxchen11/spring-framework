@@ -22,8 +22,6 @@ public class SpringSourceMvcAnoApplication {
 	public void start() throws Exception {
 		LOG.info("=================开始加载内嵌tomcat=====================");
 		String userDir = System.getProperty("user.dir");
-//		String rootUrl = getClass().getClassLoader().getResource("./").getPath();
-//		String baseDir = StringUtils.substringBefore(rootUrl, "/target/classes");
 		String webappDir = userDir + File.separator + "/src/main/webapp";
 
 		Tomcat tomcat = new Tomcat();
