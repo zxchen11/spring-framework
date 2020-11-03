@@ -29,8 +29,7 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
 1.spring上下文初始化核心流程（refresh方法）
         
     1.prepareRefresh(); refresh之前的准备工作，内部调用逻辑已注释
-    2.obtainFreshBeanFactory();重点方法：BeanFactory创建，XMl配置文件解析，
-      BeanDefinition封装
+    2.obtainFreshBeanFactory();BeanFactory创建，XMl配置文件解析，BeanDefinition封装
         1.SPi（Service Provider Interface）思想，注册解析类
         2.NamespaceHandler init() decorate() parse() 处理默认及自定义标签解析
         3.BeanDefinitionParser，由NamespaceHandler.init()注册，负责标签属性解析
@@ -43,19 +42,17 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
         4.委托模式
         5.源码中类似路径正则解析的建议不看，调用链太深，容易陷进去出不来。
     3.prepareBeanFactory(beanFactory);注册一些对事件、监听器等内置功能的支持
-    4.postProcessBeanFactory(beanFactory);钩子方法，BeanFactory创建后，
-    对BeanFactory的自定义操作。
+    4.postProcessBeanFactory(beanFactory);BeanFactory创建后，自定义操作。
     5.invokeBeanFactoryPostProcessors(beanFactory);
     重点方法：这里调用了postProcessBeanDefinitionRegistry(registry)、
-        postProcessBeanFactory(registry);springboot中很多激活自动配置的
-        注解都是通过这里导入的。
-        重点关注：AnnotationConfigUtils.registerAnnotationConfigProcessors，
-        注册的内置的BeanDefinitionRegistryPostProcess
-            1.ConfigurationClassPostProcessor，内部包含@Configuration、
-                @Bean、@Import、@ImportSource、@Component、@ComponentScan、
-                @PropertySources等注解的支持 
-    6.registerBeanPostProcessors(beanFactory);重点方法：从beanFactory
-    中获取所有的BeanPostProcessor，优先进行getBean操作，实例化
+    postProcessBeanFactory(registry);springboot中很多激活自动配置的注解通过这里导入
+    重点关注：AnnotationConfigUtils.registerAnnotationConfigProcessors，
+    注册的内置的BeanDefinitionRegistryPostProcess
+        1.ConfigurationClassPostProcessor，内部包含@Configuration、
+        @Bean、@Import、@ImportSource、@Component、@ComponentScan、
+        @PropertySources等注解的支持 
+    6.registerBeanPostProcessors(beanFactory);重点方法：从beanFactory中获取所有的
+    BeanPostProcessor，优先进行getBean操作，实例化。
     接口及子接口
         BeanPostProcess 定义了类初始化之前、之后的方法回调
         InstantiationAwareBeanPostProcessor 定义了类实例化之前、之后、
@@ -66,19 +63,16 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
                 RequiredAnnotationBeanPostProcessor
                 AutowiredAnnotationBeanPostProcessor
                 CommonAnnotationBeanPostProcessor
-            MergedBeanDefinitionPostProcessor 定义了类实例化之后，依赖注入之前
-            的的方法回调
+            MergedBeanDefinitionPostProcessor 定义的类实例化之后，依赖注入之前的方法回调
             DestructionAwareBeanPostProcessor 定义了bean销毁之前的方法回调
                 InitDestroyAnnotationBeanPostProcessor
     7.initMessageSource();国际化支持，不常用，未加注释。	
-    8.initApplicationEventMulticaster();初始化ApplicationEventMulticaster。 
-    如果上下文中未定义，
-      则使用SimpleApplicationEventMulticaster。		
+    8.initApplicationEventMulticaster();初始化ApplicationEventMulticaster 如果上下
+    文中未定义，则使用SimpleApplicationEventMulticaster。		
     9.onRefresh();钩子方法，springBoot中的嵌入式tomcat就是通过此方法实现的
     10.registerListeners();监听器注册
-    11.finishBeanFactoryInitialization(beanFactory);重点方法：完成容器中
-    bean的实例化，及代理的生成等操作。
-        这里面包含内容getBean、依赖注入、生成代理等。具体看代码。
+    11.finishBeanFactoryInitialization(beanFactory);重点方法：完成容器中bean的实例化，
+    及代理的生成等操作。这里面包含内容getBean、依赖注入、生成代理等。具体看代码。
     12.finishRefresh();完成此上下文的刷新，调用LifecycleProcessor的onRefresh
     方法并发布
 
@@ -112,8 +106,8 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
                         -> applyBeanPostProcessorsAfterInitializationAOP入口
             ->addSingleton()添加一级缓存
     -> getObjectForBeanInstance
-    如果实力是FactoryBean类型，调用factory.getObject();
-    最终返回这个方法返回的实例.如果要获取源实例，需要在beanName前加&符号
+    如果实力是FactoryBean类型，调用factory.getObject();最终返回这个方法返回的实例.如果要
+    获取源实例，需要在beanName前加&符号
     
 3.BeanPostProcessor扩展 --> AOP实现逻辑
         
