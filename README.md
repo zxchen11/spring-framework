@@ -106,6 +106,9 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
     5.MVC中DispatcherServlet核心流程：HanlderMapping、HanlderAdapter扩展等。
         1.mvc模块README中概要后续再整理，暂时懒得搞了O(∩_∩)O
 
+## Spring源码版本
+    v5.1.3RELEASE
+
 ## 源码下载及编译
 
 1.源码下载：git clone --branch v5.1.3.RELEASE https://gitee.com/wanglizhi00/spring-framework.git
