@@ -10,11 +10,11 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
             1.SPi（Service Provider Interface）思想，注册解析类
             2.NamespaceHandler init() decorate() parse() 处理默认及自定义标签解析
             3.BeanDefinitionParser，由NamespaceHandler.init()注册，负责标签属性解析
-                1.PropertyPlaceholderBeanDefinitionParser 已添加注释
-                2.PropertyOverrideBeanDefinitionParser 已添加注释
-                3.AnnotationConfigBeanDefinitionParser 已添加注释
-                4.ComponentScanBeanDefinitionParser 重点关注 已添加注释
-                5.SpringConfiguredBeanDefinitionParser 已添加注释
+                1.PropertyPlaceholderBeanDefinitionParser 
+                2.PropertyOverrideBeanDefinitionParser 
+                3.AnnotationConfigBeanDefinitionParser 
+                4.ComponentScanBeanDefinitionParser 重点关注 
+                5.SpringConfiguredBeanDefinitionParser 
                 ...
             4.委托模式
             5.源码中类似路径正则解析的建议不看，调用链太深，容易陷进去出不来。
@@ -88,7 +88,7 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
             -> invocation = new ReflectiveMethodInvocation -> invocation.proceed()
                 -> currentInterceptorIndex未达到执行链末尾 -> 获取切面是InterceptorAndDynamicMethodMatcher
                 -> dm.interceptor.invoke(this);执行切面增强，并将自身作为参数传递，火炬传递。比如around中会议JoinPoint为参数，内部调用时又会调用到proceed方法
-                -> currentInterceptorIndex达到执行链末尾 -> invokeJoinpoint -> 有火炬传递的，向上跳出，执行后置并返回。
+                -> currentInterceptorIndex达到执行链末尾 -> invokeJoinpoint -> 有火炬传递的，向上跳出，执行后置增强并返回。
     4.BeanPostProcessor扩展 --> 事务实现逻辑，传播行为原理
         1.入口：EnableTransactionManagement -> @Import(TransactionManagementConfigurationSelector.class) -> ProxyTransactionManagementConfiguration
         -> 包含一系列的@Bean标识的方法，其中transactionAdvisor返回对应BeanFactoryTransactionAttributeSourceAdvisor，这个类是事务增强类。
@@ -104,7 +104,7 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
                 -> proceedWithInvocation -> (completeTransactionAfterThrowing -> cleanupTransactionInfo)/(cleanupTransactionInfo -> commitTransactionAfterReturning)
             事务的执行流程不好描述，具体可看源码中的注释，很详细。
     5.MVC中DispatcherServlet核心流程：HanlderMapping、HanlderAdapter扩展等。
-        1.mvc模块README中概要后续再整理，暂时懒得搞了O(∩_∩)O
+    6.更多知识点见源码中注释，上面列举的，没列举的都有。很详细。
 
 ## Spring源码版本
     v5.1.3RELEASE
