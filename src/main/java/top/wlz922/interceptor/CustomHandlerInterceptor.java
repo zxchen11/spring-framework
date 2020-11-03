@@ -23,20 +23,23 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		log.info("CustomHandlerInterceptor.preHandle() execute...");
+		log.debug("CustomHandlerInterceptor.preHandle() execute...");
+		// 记录运行时间点
 		StopWatchUtils.snapshot(THREAD_LOCAL_STOP_WATCH.get(), CLASS_NAME + ".preHandle");
 		return true;
 	}
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-		log.info("CustomHandlerInterceptor.postHandle() execute...");
+		log.debug("CustomHandlerInterceptor.postHandle() execute...");
+		// 记录运行时间点
 		StopWatchUtils.snapshot(THREAD_LOCAL_STOP_WATCH.get(), CLASS_NAME + ".preHandle");
 	}
 
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-		log.info("CustomHandlerInterceptor.afterCompletion() execute...");
+		log.debug("CustomHandlerInterceptor.afterCompletion() execute...");
+		// 记录运行时间点
 		StopWatchUtils.snapshot(THREAD_LOCAL_STOP_WATCH.get(), CLASS_NAME + ".preHandle");
 	}
 }

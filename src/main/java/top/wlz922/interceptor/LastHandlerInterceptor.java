@@ -33,11 +33,12 @@ public class LastHandlerInterceptor implements HandlerInterceptor {
 
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-		log.info("LastHandlerInterceptor.afterCompletion() execute...");
+		log.debug("LastHandlerInterceptor.afterCompletion() execute...");
 		printExecuteTime();
 	}
 
 	private void printExecuteTime() {
+		// 统计并打印流程中各区段的运行时间
 		StopWatch stopWatch = THREAD_LOCAL_STOP_WATCH.get();
 		stopWatch.stop();
 		THREAD_LOCAL_STOP_WATCH.remove();
