@@ -483,42 +483,53 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
 			// Prepare this context for refreshing.
+			// 不太重要，预刷新，做一些准备工作。记录了启动时间戳，标记为活动，非关闭状态。
 			prepareRefresh();
 
 			/**
-			 * 解析xml配置文件，创建beanFactory，包装BeanDefinition
+			 * TODO 重点：解析xml配置文件，创建beanFactory，包装BeanDefinition
 			 */
 			// Tell the subclass to refresh the internal bean factory.
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
+			// 注册一些对事件、监听器等的支持
 			prepareBeanFactory(beanFactory);
 
 			try {
+				// 钩子方法，BeanFactory创建后，对BeanFactory的自定义操作。
 				// Allows post-processing of the bean factory in context subclasses.
 				postProcessBeanFactory(beanFactory);
 
+				// TODO 重点：这里调用了postProcessBeanDefinitionRegistry(registry);springboot中很多激活自动配置的注解都是通过这里导入的。
 				// Invoke factory processors registered as beans in the context.
 				invokeBeanFactoryPostProcessors(beanFactory);
 
+				// TODO 重点：从beanFactory中获取所有的BeanPostProcessor，优先进行getBean操作，实例化
 				// Register bean processors that intercept bean creation.
 				registerBeanPostProcessors(beanFactory);
 
+				// 国际化支持
 				// Initialize message source for this context.
 				initMessageSource();
 
+				// 初始化ApplicationEventMulticaster。 如果上下文中未定义，则使用SimpleApplicationEventMulticaster。
 				// Initialize event multicaster for this context.
 				initApplicationEventMulticaster();
 
+				// 钩子方法，springBoot中的嵌入式tomcat就是通过此方法实现的
 				// Initialize other special beans in specific context subclasses.
 				onRefresh();
 
+				// 监听器注册
 				// Check for listener beans and register them.
 				registerListeners();
 
+				// TODO 重点方法：完成容器中bean的实例化，及代理的生成等操作。
 				// Instantiate all remaining (non-lazy-init) singletons.
 				finishBeanFactoryInitialization(beanFactory);
 
+				// 完成此上下文的刷新，调用LifecycleProcessor的onRefresh（）方法并发布
 				// Last step: publish corresponding event.
 				finishRefresh();
 			}
@@ -565,6 +576,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 		}
 
+		// 钩子方法，初始化properties资源，ApplicationContext在构造函数中已经初始化了properties，所以这里是空的
 		// Initialize any placeholder property sources in the context environment
 		initPropertySources();
 
@@ -593,6 +605,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see #getBeanFactory()
 	 */
 	protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
+		// 创建BeanFactory的核心方法，解析xml的入口
 		refreshBeanFactory();
 		return getBeanFactory();
 	}

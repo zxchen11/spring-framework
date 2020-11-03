@@ -82,6 +82,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 * @throws BeansException if context creation failed
 	 */
 	public ClassPathXmlApplicationContext(String configLocation) throws BeansException {
+		// 通过xml方式创建上下文对象的入口，设置父容器为null
 		this(new String[] {configLocation}, true, null);
 	}
 
@@ -137,10 +138,14 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	public ClassPathXmlApplicationContext(
 			String[] configLocations, boolean refresh, @Nullable ApplicationContext parent)
 			throws BeansException {
-
+		// 首先访问父类构造函数，将父容器设置为空，并给成员变量resourcePatternResolver赋值为PathMatchingResourcePatternResolver
+		// 这里创建了PathMatchingResourcePatternResolver：能够将指定的资源位置路径解析为一个或多个匹配的Resources
 		super(parent);
+		// 设置properties配置值，如果未配置，采用默认值
 		setConfigLocations(configLocations);
 		if (refresh) {
+			// TODO 关键点，上下文类中的核心方法
+			// 上下文初始化核心方法，任何一个上下文实现类都会调用到这个方法。
 			refresh();
 		}
 	}

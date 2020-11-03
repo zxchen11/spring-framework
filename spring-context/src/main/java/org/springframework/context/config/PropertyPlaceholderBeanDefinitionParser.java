@@ -57,7 +57,7 @@ class PropertyPlaceholderBeanDefinitionParser extends AbstractPropertyLoadingBea
 	@Override
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		super.doParse(element, parserContext, builder);
-
+		// 专门处理property的解析类，没什么难度，简单看看，都是添加一些属性注入的
 		builder.addPropertyValue("ignoreUnresolvablePlaceholders",
 				Boolean.valueOf(element.getAttribute("ignore-unresolvable")));
 

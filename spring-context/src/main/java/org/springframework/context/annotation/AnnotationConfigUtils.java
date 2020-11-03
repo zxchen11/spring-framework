@@ -149,6 +149,7 @@ public abstract class AnnotationConfigUtils {
 			BeanDefinitionRegistry registry, @Nullable Object source) {
 		// ApplicationContext是实现了BeanDefinitionRegistry的，这里将ApplicationContext进行强转。
 		DefaultListableBeanFactory beanFactory = unwrapDefaultListableBeanFactory(registry);
+		// 比较器
 		if (beanFactory != null) {
 			if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) {
 				beanFactory.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
@@ -160,13 +161,14 @@ public abstract class AnnotationConfigUtils {
 
 		Set<BeanDefinitionHolder> beanDefs = new LinkedHashSet<>(8);
 
+		// ConfigurationClassPostProcessor注册，支持注解@Configuration
 		if (!registry.containsBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			// 这里注入了一个BeanFactoryPostProcessor
 			RootBeanDefinition def = new RootBeanDefinition(ConfigurationClassPostProcessor.class);
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME));
 		}
-
+		// AutowiredAnnotationBeanPostProcessor注册，支持@Autowired
 		if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(AutowiredAnnotationBeanPostProcessor.class);
 			def.setSource(source);

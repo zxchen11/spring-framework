@@ -243,7 +243,7 @@ class ConfigurationClassParser {
 	@Nullable
 	protected final SourceClass doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)
 			throws IOException {
-
+		// Component注解支持
 		if (configClass.getMetadata().isAnnotated(Component.class.getName())) {
 			// Recursively process any member (nested) classes first
 			processMemberClasses(configClass, sourceClass);
@@ -287,9 +287,11 @@ class ConfigurationClassParser {
 			}
 		}
 
+		// 处理@Import注解导入
 		// Process any @Import annotations
 		processImports(configClass, sourceClass, getImports(sourceClass), true);
 
+		// 处理@ImportResource注解导入
 		// Process any @ImportResource annotations
 		AnnotationAttributes importResource =
 				AnnotationConfigUtils.attributesFor(sourceClass.getMetadata(), ImportResource.class);
@@ -302,12 +304,14 @@ class ConfigurationClassParser {
 			}
 		}
 
+		// 处理@Bean注解的解析
 		// Process individual @Bean methods
 		Set<MethodMetadata> beanMethods = retrieveBeanMethodMetadata(sourceClass);
 		for (MethodMetadata methodMetadata : beanMethods) {
 			configClass.addBeanMethod(new BeanMethod(methodMetadata, configClass));
 		}
 
+		// 处理接口上的默认方法
 		// Process default methods on interfaces
 		processInterfaces(configClass, sourceClass);
 
@@ -347,6 +351,7 @@ class ConfigurationClassParser {
 				else {
 					this.importStack.push(configClass);
 					try {
+						// 递归调用
 						processConfigurationClass(candidate.asConfigClass(configClass));
 					}
 					finally {
@@ -537,6 +542,7 @@ class ConfigurationClassParser {
 			return;
 		}
 
+		// 检测循环导入
 		if (checkForCircularImports && isChainedImportOnStack(configClass)) {
 			this.problemReporter.error(new CircularImportProblem(configClass, this.importStack));
 		}

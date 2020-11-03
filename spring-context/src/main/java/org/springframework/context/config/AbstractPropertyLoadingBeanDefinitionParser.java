@@ -41,6 +41,7 @@ abstract class AbstractPropertyLoadingBeanDefinitionParser extends AbstractSingl
 
 	@Override
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+		// 各种属性解析
 		String location = element.getAttribute("location");
 		if (StringUtils.hasLength(location)) {
 			location = parserContext.getReaderContext().getEnvironment().resolvePlaceholders(location);
