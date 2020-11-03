@@ -16,21 +16,14 @@
 
 package org.springframework.transaction.support;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+
+import java.util.*;
 
 /**
  * Central delegate that manages resources and transaction synchronizations per thread.
@@ -207,6 +200,7 @@ public abstract class TransactionSynchronizationManager {
 	 */
 	public static Object unbindResource(Object key) throws IllegalStateException {
 		Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
+		// 解绑链接资源、键值为当前dataSource对象
 		Object value = doUnbindResource(actualKey);
 		if (value == null) {
 			throw new IllegalStateException(
@@ -222,6 +216,7 @@ public abstract class TransactionSynchronizationManager {
 	 */
 	@Nullable
 	public static Object unbindResourceIfPossible(Object key) {
+		// 从缓存中移除绑定关系
 		Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
 		return doUnbindResource(actualKey);
 	}
@@ -231,6 +226,7 @@ public abstract class TransactionSynchronizationManager {
 	 */
 	@Nullable
 	private static Object doUnbindResource(Object actualKey) {
+		// 从ThreadLocal的map缓存中获取，如果为空，直接返回，如果不为空，则移除绑定关系。
 		Map<Object, Object> map = resources.get();
 		if (map == null) {
 			return null;

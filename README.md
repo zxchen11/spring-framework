@@ -95,8 +95,13 @@ spring源码阅读，理解spring核心模块的实现原理，实现流程。�
             -> parseTransactionAnnotation -> 查找Transactional注解 -> parseTransactionAnnotation -> AnnotationAttributes转换为TransactionAttribute
         事务执行拦截器：TransactionInterceptor，getBean中AOP生成代理对象时，会将这个方法拦截器加入执行链中
             invoke -> invokeWithinTransaction(invocation.getMethod(), targetClass, invocation::proceed(这个是执行链的回调函数))
-                ->
-        
+                -> determineTransactionManager -> createTransactionIfNecessary
+                    -> getTransaction 
+                        -> isExistingTransaction -> handleExistingTransaction
+                        -> definition.getPropagationBehavior()==reauired、requiredNew、nested -> doBegin
+                    -> prepareTransactionInfo
+                -> proceedWithInvocation -> (completeTransactionAfterThrowing -> cleanupTransactionInfo)/(cleanupTransactionInfo -> commitTransactionAfterReturning)
+        事务的执行流程这里不好描述，具体可看源码中的注释，很详细。
     5.MVC中DispatcherServlet核心流程：HanlderMapping、HanlderAdapter扩展等。
 
 ## 源码下载及编译

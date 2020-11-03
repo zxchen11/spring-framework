@@ -276,32 +276,48 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	@Nullable
 	protected Object invokeWithinTransaction(Method method, @Nullable Class<?> targetClass,
 			final InvocationCallback invocation) throws Throwable {
+		/*
+		 * TODO 其中事务传播行为的特点（这些特点，仔细分析代码是可以看出来的。相对比较烧脑。一般先了解特点，后面才会看源码）：
+		 *  PROPAGATION_REQUIRED 如果当前存在事务，假如当前事务。如果不存在事务，新建事务。使用频率高
+		 *  PROPAGATION_REQUIRES_NEW 如果当前存在事务，则挂起当前事务，新建一个事务。如果不存在事务，新建一个事务。使用频率高
+		 *  PROPAGATION_NESTED 如果当前存在事务，则在嵌套事务内执行。如果当前不存在事务，则和PROPAGATION_REQUIRED一样新建事务。使用频率高
+		 *      特点：外围事务回滚，嵌套事务全部回滚。嵌套事务回滚，如果在外围中捕获了，则仅仅回滚嵌套事务。
+		 *  PROPAGATION_MANDATORY 以事务方式运行，如果当前不存在事务，则抛出异常
+		 *  PROPAGATION_NEVER 以非事务方式运行，如果当前存在事务，则抛出异常
+		 *  PROPAGATION_SUPPORTEDS 支持事务。如果当前存在事务，加入当前事务。如果不存在事务，则以非事务方式运行。
+		 *  PROPAGATION_NOT_SUPPORTED 以非事务方式运行。如果当前存在事务，挂起当前事务。
+		 */
 
 		// If the transaction attribute is null, the method is non-transactional.
 		TransactionAttributeSource tas = getTransactionAttributeSource();
 		final TransactionAttribute txAttr = (tas != null ? tas.getTransactionAttribute(method, targetClass) : null);
-		//获取事务管理器
+		// 获取事务管理器
 		final PlatformTransactionManager tm = determineTransactionManager(txAttr);
 		final String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
 
 		if (txAttr == null || !(tm instanceof CallbackPreferringPlatformTransactionManager)) {
-			// 如果有必要，创建事务
+			// TODO 重点：如果有必要，创建事务
 			// Standard transaction demarcation with getTransaction and commit/rollback calls.
 			TransactionInfo txInfo = createTransactionIfNecessary(tm, txAttr, joinpointIdentification);
 			Object retVal = null;
 			try {
+				// 上层方法中传入的回调函数，这里面是AOP执行链，火炬传递，直到调用了业务方法
 				// This is an around advice: Invoke the next interceptor in the chain.
 				// This will normally result in a target object being invoked.
 				retVal = invocation.proceedWithInvocation();
 			}
 			catch (Throwable ex) {
+				// 业务方法执行出现异常
 				// target invocation exception
 				completeTransactionAfterThrowing(txInfo, ex);
 				throw ex;
 			}
 			finally {
+				// TODO 清除事务信息，将当前事务清除，如果存在旧的事务对象，将旧的事务对象设置为当前持有的事务
+				//  存储在TransactionAspectSupport.transactionInfoHolder中，这是一个静态TrheadLocal常量。
 				cleanupTransactionInfo(txInfo);
 			}
+			// TODO 提交事务
 			commitTransactionAfterReturning(txInfo);
 			return retVal;
 		}
@@ -473,6 +489,11 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		TransactionStatus status = null;
 		if (txAttr != null) {
 			if (tm != null) {
+				// TODO 重点：获取TransactionStatus对象
+				//  无论被代理对象的方法是否需要事务，在通过代理对象调用方法时，总会创建一个TransactionStatus，讲一些信息绑定到
+				//  TrheadLocal的缓存变量中。这是为了在执行完方法的时候，可以回溯到调用方法存在的事务对象。类似责任链。
+				//  如果挂起了存在的事务，则当前方法执行的事务状态对象中会存储SuspendedResourcesHolder，及挂起的事务信息，
+				//  当方法执行完后，将这个挂起从新设置到当前事务中来。
 				status = tm.getTransaction(txAttr);
 			}
 			else {
@@ -482,6 +503,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				}
 			}
 		}
+		// TODO 重点：将上面获取到的对象封装成TransactionInfo对象
 		return prepareTransactionInfo(tm, txAttr, joinpointIdentification, status);
 	}
 
@@ -543,13 +565,16 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * @param ex throwable encountered
 	 */
 	protected void completeTransactionAfterThrowing(@Nullable TransactionInfo txInfo, Throwable ex) {
+		// 如果存在事务状态对象
 		if (txInfo != null && txInfo.getTransactionStatus() != null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() +
 						"] after exception: " + ex);
 			}
+			// 判断失误属性不为空并且满足回滚规则，就进行回滚，否则进行事务提交
 			if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
 				try {
+					// TODO 重点：具体的回滚代码
 					txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());
 				}
 				catch (TransactionSystemException ex2) {
@@ -587,6 +612,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * @param txInfo information about the current transaction (may be {@code null})
 	 */
 	protected void cleanupTransactionInfo(@Nullable TransactionInfo txInfo) {
+		// 清除事务信息，将当前事务清除，如果存在旧的事务对象，将旧的事务对象设置为当前持有的事务
+		// 存储在TransactionAspectSupport.transactionInfoHolder中，这是一个静态TrheadLocal常量。
 		if (txInfo != null) {
 			txInfo.restoreThreadLocalStatus();
 		}

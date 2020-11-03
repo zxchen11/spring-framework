@@ -16,15 +16,14 @@
 
 package org.springframework.transaction.interceptor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.lang.Nullable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.lang.Nullable;
 
 /**
  * TransactionAttribute implementation that works out whether a given exception
@@ -137,9 +136,12 @@ public class RuleBasedTransactionAttribute extends DefaultTransactionAttribute i
 		RollbackRuleAttribute winner = null;
 		int deepest = Integer.MAX_VALUE;
 
+		// 判断回滚规则
 		if (this.rollbackRules != null) {
 			for (RollbackRuleAttribute rule : this.rollbackRules) {
+				// 递归调用异常的父类，如果异常名称中包含规则中封装的异常名称，则返回。
 				int depth = rule.getDepth(ex);
+				// 如果不满足规则，会返回-1，如果满足了规则，会把这个规则赋值到winner临时变量中。
 				if (depth >= 0 && depth < deepest) {
 					deepest = depth;
 					winner = rule;
@@ -151,12 +153,15 @@ public class RuleBasedTransactionAttribute extends DefaultTransactionAttribute i
 			logger.trace("Winning rollback rule is: " + winner);
 		}
 
+		// 如果没有配置回滚异常或不回滚异常，则会走默认的。默认回滚运行时异常集错误：
+		// (ex instanceof RuntimeException || ex instanceof Error);
 		// User superclass behavior (rollback on unchecked) if no rule matches.
 		if (winner == null) {
 			logger.trace("No relevant rollback rule found: applying default rules");
 			return super.rollbackOn(ex);
 		}
-
+		// 判断规则如果是不回滚规则，则返回false，表示不需要回滚。
+		// 判断规则如果不是不回滚规则，返回true，表示需要回滚
 		return !(winner instanceof NoRollbackRuleAttribute);
 	}
 

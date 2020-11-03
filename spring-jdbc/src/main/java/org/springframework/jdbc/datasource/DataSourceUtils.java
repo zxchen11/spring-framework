@@ -16,20 +16,19 @@
 
 package org.springframework.jdbc.datasource;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Helper class that provides static methods for obtaining JDBC Connections from
@@ -304,6 +303,7 @@ public abstract class DataSourceUtils {
 	 */
 	public static void releaseConnection(@Nullable Connection con, @Nullable DataSource dataSource) {
 		try {
+			// 执行释放连接
 			doReleaseConnection(con, dataSource);
 		}
 		catch (SQLException ex) {
@@ -486,6 +486,7 @@ public abstract class DataSourceUtils {
 				TransactionSynchronizationManager.unbindResourceIfPossible(this.dataSource);
 				this.holderActive = false;
 				if (this.connectionHolder.hasConnection()) {
+					// TODO 释放连接
 					releaseConnection(this.connectionHolder.getConnection(), this.dataSource);
 					// Reset the ConnectionHolder: It might remain bound to the thread.
 					this.connectionHolder.setConnection(null);
