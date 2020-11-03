@@ -63,16 +63,16 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
                 RequiredAnnotationBeanPostProcessor
                 AutowiredAnnotationBeanPostProcessor
                 CommonAnnotationBeanPostProcessor
-            MergedBeanDefinitionPostProcessor 定义的类实例化之后，依赖注入之前的方法回调
+            MergedBeanDefinitionPostProcessor 定义的类实例化之后 依赖注入之前方法回调
             DestructionAwareBeanPostProcessor 定义了bean销毁之前的方法回调
                 InitDestroyAnnotationBeanPostProcessor
     7.initMessageSource();国际化支持，不常用，未加注释。	
-    8.initApplicationEventMulticaster();初始化ApplicationEventMulticaster 如果上下
-    文中未定义，则使用SimpleApplicationEventMulticaster。		
+    8.initApplicationEventMulticaster();初始化ApplicationEventMulticaster 如果
+    上下文中未定义，则使用SimpleApplicationEventMulticaster。		
     9.onRefresh();钩子方法，springBoot中的嵌入式tomcat就是通过此方法实现的
     10.registerListeners();监听器注册
-    11.finishBeanFactoryInitialization(beanFactory);重点方法：完成容器中bean的实例化，
-    及代理的生成等操作。这里面包含内容getBean、依赖注入、生成代理等。具体看代码。
+    11.finishBeanFactoryInitialization(beanFactory);重点方法：完成容器中bean的实
+    例化及代理的生成等操作。这里面包含内容getBean、依赖注入、生成代理等。具体看代码。
     12.finishRefresh();完成此上下文的刷新，调用LifecycleProcessor的onRefresh
     方法并发布
 
@@ -106,8 +106,8 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
                         -> applyBeanPostProcessorsAfterInitializationAOP入口
             ->addSingleton()添加一级缓存
     -> getObjectForBeanInstance
-    如果实力是FactoryBean类型，调用factory.getObject();最终返回这个方法返回的实例.如果要
-    获取源实例，需要在beanName前加&符号
+    如果实力是FactoryBean类型，调用factory.getObject();最终返回这个方法返回的实例.
+    如果要获取源实例，需要在beanName前加&符号
     
 3.BeanPostProcessor扩展 --> AOP实现逻辑
         
