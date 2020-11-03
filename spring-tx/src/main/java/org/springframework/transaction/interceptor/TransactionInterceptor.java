@@ -84,7 +84,6 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
 		setTransactionAttributeSource(tas);
 	}
 
-
 	@Override
 	@Nullable
 	public Object invoke(MethodInvocation invocation) throws Throwable {
