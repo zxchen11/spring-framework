@@ -187,5 +187,5 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
             -> cleanupTransactionInfo)
             /(cleanupTransactionInfo -> commitTransactionAfterReturning)
         事务的执行流程不好描述，具体可看源码中的注释，很详细。
-5.MVC中DispatcherServlet核心流程：HanlderMapping、HanlderAdapter扩展等。
+5.MVC中DispatcherServlet核心流程：HanlderMapping、HanlderAdapter扩展等。<br/>
 6.更多知识点见源码中注释，上面列举的，没列举的都有。很详细。
