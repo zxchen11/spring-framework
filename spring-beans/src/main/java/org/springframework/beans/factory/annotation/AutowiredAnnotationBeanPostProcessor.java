@@ -569,6 +569,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 		@Override
 		protected void inject(Object bean, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
+			// 字段的自动注入
 			Field field = (Field) this.member;
 			Object value;
 			if (this.cached) {

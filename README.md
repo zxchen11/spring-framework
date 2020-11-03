@@ -54,16 +54,49 @@ spring源码阅读，理解spring核心模块的实现原理，实现流程。�
                         -> createBeanInstance -> applyMergedBeanDefinitionPostProcessors -> addSingletonFactory
                         -> populateBean依赖注入 
                             -> postProcessProperties 属性注入 spring5.1版本及之后
+                                -> findAutowiringMetadata封装需要注入的属性 -> inject 
+                                -> element.inject(InjectedElement)(AutowiredFieldElement/AutowiredMethodElement)
                             -> postProcessPropertyValues 属性注入 spring5.1版本之前
                             -> applyPropertyValues
                         -> initializeBean
                             -> applyBeanPostProcessorsBeforeInitialization -> invokeInitMethods
                             -> applyBeanPostProcessorsAfterInitialization AOP入口
                 ->addSingleton()添加一级缓存
-        -> getObjectForBeanInstance
+        -> getObjectForBeanInstance 如果实力是FactoryBean类型，调用factory.getObject();最终返回这个方法返回的实例，如果要获取源实例，需要在beanName前加&符号
     3.BeanPostProcessor --> AOP实现逻辑
-        
+        AOP的生成：
+            AbstractAutoProxyCreator.postProcessAfterInitialization -> wrapIfNecessary
+                -> getAdvicesAndAdvisorsForBean 获取切面
+                    -> findEligibleAdvisors
+                        -> findCandidateAdvisors
+                            -> super.findCandidateAdvisors()
+                                -> findAdvisorBeans
+                            -> buildAspectJAdvisors
+                                -> isAspect -> getAdvisors
+                                    -> getAdvisorMethods -> getAdvisor
+                                        -> getPointcut -> return new InstantiationModelAwarePointcutAdvisorImpl
+                -> createProxy
+                    -> buildAdvisors 构建切面（将是MethodInterceptor的对象包装为Advisor，策略模式，消除执行链时的ifelse）
+                        —> resolveInterceptorNames（事务增强会在这里面）
+                    -> getProxy生成代理对象
+                        -> createAopProxy(JdkDynamicAopProxy/ObjenesisCglibAopProxy) -> getProxy
+                            if(JdkDynamicAopProxy) -> Proxy.newProxyInstance    
+                            if(ObjenesisCglibAopProxy) -> createProxyClassAndInstance -> newInstance -> setCallbacks
+        AOP执行链的执行（以JDK动态代理为例）：
+            JdkDynamicAopProxy.invoke -> getInterceptorsAndDynamicInterceptionAdvice
+            -> invocation = new ReflectiveMethodInvocation -> invocation.proceed()
+                -> currentInterceptorIndex未达到执行链末尾 -> 获取切面是InterceptorAndDynamicMethodMatcher
+                -> dm.interceptor.invoke(this);执行切面增强，并将自身作为参数传递，火炬传递。比如around中会议JoinPoint为参数，内部调用时又会调用到proceed方法
+                -> currentInterceptorIndex达到执行链末尾 -> invokeJoinpoint -> 有火炬传递的，向上跳出，执行后置并返回。
     4.BeanPostProcessor --> 事务实现逻辑，传播行为原理
+        入口：EnableTransactionManagement -> @Import(TransactionManagementConfigurationSelector.class) -> ProxyTransactionManagementConfiguration
+        -> 包含一系列的@Bean标识的方法，其中transactionAdvisor返回对应BeanFactoryTransactionAttributeSourceAdvisor，这个类是事务增强类。
+        事务属性搜集：getTransactionAttribute -> computeTransactionAttribute -> findTransactionAttribute -> determineTransactionAttribute
+            -> parseTransactionAnnotation -> 查找Transactional注解 -> parseTransactionAnnotation -> AnnotationAttributes转换为TransactionAttribute
+        事务执行拦截器：TransactionInterceptor，getBean中AOP生成代理对象时，会将这个方法拦截器加入执行链中
+            invoke -> invokeWithinTransaction(invocation.getMethod(), targetClass, invocation::proceed(这个是执行链的回调函数))
+                ->
+        
     5.MVC中DispatcherServlet核心流程：HanlderMapping、HanlderAdapter扩展等。
 
 ## 源码下载及编译

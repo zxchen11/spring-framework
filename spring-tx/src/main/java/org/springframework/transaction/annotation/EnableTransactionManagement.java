@@ -16,15 +16,11 @@
 
 package org.springframework.transaction.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
+
+import java.lang.annotation.*;
 
 /**
  * Enables Spring's annotation-driven transaction management capability, similar to
@@ -152,6 +148,7 @@ import org.springframework.core.Ordered;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+// TODO 重点：事务注册入口类
 @Import(TransactionManagementConfigurationSelector.class)
 public @interface EnableTransactionManagement {
 

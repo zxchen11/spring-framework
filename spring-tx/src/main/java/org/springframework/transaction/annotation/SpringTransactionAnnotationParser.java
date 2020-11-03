@@ -16,11 +16,6 @@
 
 package org.springframework.transaction.annotation;
 
-import java.io.Serializable;
-import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -29,6 +24,11 @@ import org.springframework.transaction.interceptor.NoRollbackRuleAttribute;
 import org.springframework.transaction.interceptor.RollbackRuleAttribute;
 import org.springframework.transaction.interceptor.RuleBasedTransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionAttribute;
+
+import java.io.Serializable;
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Strategy implementation for parsing Spring's {@link Transactional} annotation.
@@ -42,9 +42,12 @@ public class SpringTransactionAnnotationParser implements TransactionAnnotationP
 	@Override
 	@Nullable
 	public TransactionAttribute parseTransactionAnnotation(AnnotatedElement element) {
+
+		// TODO 重点：从方法上查找@Transactional注解，AnnotatedElement是Method、Field的超类
 		AnnotationAttributes attributes = AnnotatedElementUtils.findMergedAnnotationAttributes(
 				element, Transactional.class, false, false);
 		if (attributes != null) {
+			// TODO 重点：如果从方法上查找到了@Transactional注解，则解析注解中的各个属性值
 			return parseTransactionAnnotation(attributes);
 		}
 		else {
@@ -57,6 +60,7 @@ public class SpringTransactionAnnotationParser implements TransactionAnnotationP
 	}
 
 	protected TransactionAttribute parseTransactionAnnotation(AnnotationAttributes attributes) {
+		// TODO 此方法主要做对象类型转换，将AnnotationAttributes中的属性赋值到RuleBasedTransactionAttribute中，返回。
 		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
 
 		Propagation propagation = attributes.getEnum("propagation");

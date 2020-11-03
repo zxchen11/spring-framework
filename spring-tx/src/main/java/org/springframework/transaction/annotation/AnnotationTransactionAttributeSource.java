@@ -16,6 +16,12 @@
 
 package org.springframework.transaction.annotation;
 
+import org.springframework.lang.Nullable;
+import org.springframework.transaction.interceptor.AbstractFallbackTransactionAttributeSource;
+import org.springframework.transaction.interceptor.TransactionAttribute;
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+
 import java.io.Serializable;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -23,12 +29,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.springframework.lang.Nullable;
-import org.springframework.transaction.interceptor.AbstractFallbackTransactionAttributeSource;
-import org.springframework.transaction.interceptor.TransactionAttribute;
-import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
 /**
  * Implementation of the
@@ -90,6 +90,7 @@ public class AnnotationTransactionAttributeSource extends AbstractFallbackTransa
 	 * (typically used with AspectJ class weaving)
 	 */
 	public AnnotationTransactionAttributeSource(boolean publicMethodsOnly) {
+		// 这里注入了注解解析类。 SpringTransactionAnnotationParser，解析时就用到的这个类中的方法
 		this.publicMethodsOnly = publicMethodsOnly;
 		if (jta12Present || ejb3Present) {
 			this.annotationParsers = new LinkedHashSet<>(4);
@@ -161,6 +162,8 @@ public class AnnotationTransactionAttributeSource extends AbstractFallbackTransa
 	 */
 	@Nullable
 	protected TransactionAttribute determineTransactionAttribute(AnnotatedElement element) {
+		// TODO 循环所有的解析器，如果有解析器解析出的结果不为空，则直接返回事务属性，解析器列表是在当前对象构造函数时，加载的
+		//  如果是注解方式，用到的注解解析器是：SpringTransactionAnnotationParser
 		for (TransactionAnnotationParser annotationParser : this.annotationParsers) {
 			TransactionAttribute attr = annotationParser.parseTransactionAnnotation(element);
 			if (attr != null) {
