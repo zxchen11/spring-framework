@@ -63,8 +63,8 @@ spring源码阅读，理解spring核心模块的实现原理，实现流程。�
                             -> applyBeanPostProcessorsAfterInitialization AOP入口
                 ->addSingleton()添加一级缓存
         -> getObjectForBeanInstance 如果实力是FactoryBean类型，调用factory.getObject();最终返回这个方法返回的实例，如果要获取源实例，需要在beanName前加&符号
-    3.BeanPostProcessor --> AOP实现逻辑
-        AOP的生成：
+    3.BeanPostProcessor扩展 --> AOP实现逻辑
+        1.AOP的生成：
             AbstractAutoProxyCreator.postProcessAfterInitialization -> wrapIfNecessary
                 -> getAdvicesAndAdvisorsForBean 获取切面
                     -> findEligibleAdvisors
@@ -82,18 +82,18 @@ spring源码阅读，理解spring核心模块的实现原理，实现流程。�
                         -> createAopProxy(JdkDynamicAopProxy/ObjenesisCglibAopProxy) -> getProxy
                             if(JdkDynamicAopProxy) -> Proxy.newProxyInstance    
                             if(ObjenesisCglibAopProxy) -> createProxyClassAndInstance -> newInstance -> setCallbacks
-        AOP执行链的执行（以JDK动态代理为例）：
+        2.AOP执行链的执行（以JDK动态代理为例）：
             JdkDynamicAopProxy.invoke -> getInterceptorsAndDynamicInterceptionAdvice
             -> invocation = new ReflectiveMethodInvocation -> invocation.proceed()
                 -> currentInterceptorIndex未达到执行链末尾 -> 获取切面是InterceptorAndDynamicMethodMatcher
                 -> dm.interceptor.invoke(this);执行切面增强，并将自身作为参数传递，火炬传递。比如around中会议JoinPoint为参数，内部调用时又会调用到proceed方法
                 -> currentInterceptorIndex达到执行链末尾 -> invokeJoinpoint -> 有火炬传递的，向上跳出，执行后置并返回。
-    4.BeanPostProcessor --> 事务实现逻辑，传播行为原理
-        入口：EnableTransactionManagement -> @Import(TransactionManagementConfigurationSelector.class) -> ProxyTransactionManagementConfiguration
+    4.BeanPostProcessor扩展 --> 事务实现逻辑，传播行为原理
+        1.入口：EnableTransactionManagement -> @Import(TransactionManagementConfigurationSelector.class) -> ProxyTransactionManagementConfiguration
         -> 包含一系列的@Bean标识的方法，其中transactionAdvisor返回对应BeanFactoryTransactionAttributeSourceAdvisor，这个类是事务增强类。
-        事务属性搜集：getTransactionAttribute -> computeTransactionAttribute -> findTransactionAttribute -> determineTransactionAttribute
+        2.事务属性搜集：getTransactionAttribute -> computeTransactionAttribute -> findTransactionAttribute -> determineTransactionAttribute
             -> parseTransactionAnnotation -> 查找Transactional注解 -> parseTransactionAnnotation -> AnnotationAttributes转换为TransactionAttribute
-        事务执行拦截器：TransactionInterceptor，getBean中AOP生成代理对象时，会将这个方法拦截器加入执行链中
+        3.事务拦截器执行流程：TransactionInterceptor，getBean中AOP生成代理对象时，会将这个方法拦截器加入执行链中
             invoke -> invokeWithinTransaction(invocation.getMethod(), targetClass, invocation::proceed(这个是执行链的回调函数))
                 -> determineTransactionManager -> createTransactionIfNecessary
                     -> getTransaction 
@@ -101,8 +101,9 @@ spring源码阅读，理解spring核心模块的实现原理，实现流程。�
                         -> definition.getPropagationBehavior()==reauired、requiredNew、nested -> doBegin
                     -> prepareTransactionInfo
                 -> proceedWithInvocation -> (completeTransactionAfterThrowing -> cleanupTransactionInfo)/(cleanupTransactionInfo -> commitTransactionAfterReturning)
-        事务的执行流程这里不好描述，具体可看源码中的注释，很详细。
+            事务的执行流程不好描述，具体可看源码中的注释，很详细。
     5.MVC中DispatcherServlet核心流程：HanlderMapping、HanlderAdapter扩展等。
+        1.mvc模块README中概要后续再整理，暂时懒得搞了O(∩_∩)O
 
 ## 源码下载及编译
 
