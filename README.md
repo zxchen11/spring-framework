@@ -60,21 +60,25 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
         方法并发布
     2.bean实例化
         所有单例bean实例化后回调接口SmartInitializingSingleton。Bean实例化流程：
-        getBean -> doGetBean -> getSingleton() -> getSingleton 
+        getBean 
+        -> doGetBean 
+        -> getSingleton() 
+        -> getSingleton 
             -> singletonFactory.getObject()
                 -> createBean
                     -> resolveBeforeInstantiation 给机会返回代理
-                        -> applyBeanPostProcessorsBeforeInstantiation -> 
-                        applyBeanPostProcessorsAfterInitialization
+                        -> applyBeanPostProcessorsBeforeInstantiation 
+                        -> applyBeanPostProcessorsAfterInitialization
                     -> doCreateBean
                         -> createBeanInstance 
                         -> applyMergedBeanDefinitionPostProcessors
                         -> addSingletonFactory
                         -> populateBean依赖注入 
                             -> postProcessProperties 属性注入 spring5.1版本及之后
-                                -> findAutowiringMetadata封装需要注入的属性 -> inject 
+                                -> findAutowiringMetadata封装需要注入的属性 
+                                -> inject 
                                 -> element.inject(InjectedElement)
-                                (AutowiredFieldElement/AutowiredMethodElement)
+                                -> (AutowiredFieldElement/AutowiredMethodElement)
                             -> postProcessPropertyValues属性注入spring5.1版本之前
                             -> applyPropertyValues
                         -> initializeBean
@@ -82,12 +86,12 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
                             -> invokeInitMethods
                             -> applyBeanPostProcessorsAfterInitializationAOP入口
                 ->addSingleton()添加一级缓存
-        -> getObjectForBeanInstance 如果实力是FactoryBean类型，调用
-        factory.getObject();最终返回这个方法返回的实例，如果要获取源实例，
-        需要在beanName前加&符号
+        -> getObjectForBeanInstance
+        如果实力是FactoryBean类型，调用factory.getObject();
+        最终返回这个方法返回的实例.如果要获取源实例，需要在beanName前加&符号
     3.BeanPostProcessor扩展 --> AOP实现逻辑
         1.AOP的生成：
-            AbstractAutoProxyCreator.postProcessAfterInitialization 
+            -> AbstractAutoProxyCreator.postProcessAfterInitialization 
             -> wrapIfNecessary
                 -> getAdvicesAndAdvisorsForBean 获取切面
                     -> findEligibleAdvisors
@@ -95,10 +99,13 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
                             -> super.findCandidateAdvisors()
                                 -> findAdvisorBeans
                             -> buildAspectJAdvisors
-                                -> isAspect -> getAdvisors
-                                    -> getAdvisorMethods -> getAdvisor
+                                -> isAspect 
+                                -> getAdvisors
+                                    -> getAdvisorMethods
+                                    -> getAdvisor
                                         -> getPointcut 
-                                        -> return new InstantiationModelAwarePointcutAdvisorImpl
+                                        -> new 
+                                        InstantiationModelAwarePointcutAdvisorImpl
                 -> createProxy
                     -> buildAdvisors 构建切面（将是MethodInterceptor的对象
                     包装为Advisor，策略模式，消除执行链时的ifelse）
@@ -106,9 +113,11 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
                     -> getProxy生成代理对象
                         -> createAopProxy(JdkDynamicAopProxy/ObjenesisCglibAopProxy)
                         -> getProxy
-                            if(JdkDynamicAopProxy) -> Proxy.newProxyInstance    
-                            if(ObjenesisCglibAopProxy) -> createProxyClassAndInstance
-                            -> newInstance ->setCallbacks
+                            -> if(JdkDynamicAopProxy) 
+                                -> Proxy.newProxyInstance    
+                            -> if(ObjenesisCglibAopProxy) 
+                                -> createProxyClassAndInstance
+                                -> newInstance ->setCallbacks
         2.AOP执行链的执行（以JDK动态代理为例）：
             JdkDynamicAopProxy.invoke
             -> getInterceptorsAndDynamicInterceptionAdvice
@@ -147,7 +156,8 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
                         -> isExistingTransaction 
                         -> handleExistingTransaction
                         -> definition.getPropagationBehavior()
-                        ==reauired、requiredNew、nested -> doBegin
+                        ==reauired、requiredNew、nested
+                        -> doBegin
                     -> prepareTransactionInfo
                 -> proceedWithInvocation 
                 -> (completeTransactionAfterThrowing 
