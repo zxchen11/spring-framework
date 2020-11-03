@@ -41,10 +41,30 @@ spring源码阅读，理解spring核心模块的实现原理，实现流程。�
         9. onRefresh();钩子方法，springBoot中的嵌入式tomcat就是通过此方法实现的
         10. registerListeners();监听器注册
         11. finishBeanFactoryInitialization(beanFactory);重点方法：完成容器中bean的实例化，及代理的生成等操作。
+            这里面包含内容getBean、依赖注入、生成代理等。具体看代码。
         12. finishRefresh();完成此上下文的刷新，调用LifecycleProcessor的onRefresh（）方法并发布
-    2.BeanPostProcessor扩展 --> AOP实现逻辑
-    3.BeanPostProcessor扩展 --> 事务实现逻辑，传播行为原理
-    4.MVC中DispatcherServlet核心流程：HanlderMapping、HanlderAdapter扩展等。
+    2.bean实例化
+        所有单例bean实例化后回调接口SmartInitializingSingleton。Bean实例化流程：
+        getBean -> doGetBean -> getSingleton() -> getSingleton 
+            -> singletonFactory.getObject()
+                -> createBean
+                    -> resolveBeforeInstantiation 给机会返回代理
+                        -> applyBeanPostProcessorsBeforeInstantiation -> applyBeanPostProcessorsAfterInitialization
+                    -> doCreateBean
+                        -> createBeanInstance -> applyMergedBeanDefinitionPostProcessors -> addSingletonFactory
+                        -> populateBean依赖注入 
+                            -> postProcessProperties 属性注入 spring5.1版本及之后
+                            -> postProcessPropertyValues 属性注入 spring5.1版本之前
+                            -> applyPropertyValues
+                        -> initializeBean
+                            -> applyBeanPostProcessorsBeforeInitialization -> invokeInitMethods
+                            -> applyBeanPostProcessorsAfterInitialization AOP入口
+                ->addSingleton()添加一级缓存
+        -> getObjectForBeanInstance
+    3.BeanPostProcessor --> AOP实现逻辑
+        
+    4.BeanPostProcessor --> 事务实现逻辑，传播行为原理
+    5.MVC中DispatcherServlet核心流程：HanlderMapping、HanlderAdapter扩展等。
 
 ## 源码下载及编译
 
