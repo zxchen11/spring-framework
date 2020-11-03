@@ -1,4 +1,4 @@
-# <img src="src/docs/asciidoc/images/spring-framework.png" width="80" height="80"> Spring Framework
+# <img src="src/docs/asciidoc/images/spring-framework.png" width="80" height="80"> Spring Framework intensive reading
 
 ## 概览
 spring源码阅读，理解spring各个模块的实现原理，实现流程。
