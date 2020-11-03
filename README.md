@@ -28,8 +28,8 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
 
 1.spring上下文初始化核心流程（refresh方法）
         
-    1. prepareRefresh(); refresh之前的准备工作，内部调用逻辑已注释
-    2. obtainFreshBeanFactory();重点方法：BeanFactory创建，XMl配置文件解析，
+    1.prepareRefresh(); refresh之前的准备工作，内部调用逻辑已注释
+    2.obtainFreshBeanFactory();重点方法：BeanFactory创建，XMl配置文件解析，
       BeanDefinition封装
         1.SPi（Service Provider Interface）思想，注册解析类
         2.NamespaceHandler init() decorate() parse() 处理默认及自定义标签解析
@@ -42,10 +42,10 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
               ...
         4.委托模式
         5.源码中类似路径正则解析的建议不看，调用链太深，容易陷进去出不来。
-    3. prepareBeanFactory(beanFactory);注册一些对事件、监听器等内置功能的支持
-    4. postProcessBeanFactory(beanFactory);钩子方法，BeanFactory创建后，
+    3.prepareBeanFactory(beanFactory);注册一些对事件、监听器等内置功能的支持
+    4.postProcessBeanFactory(beanFactory);钩子方法，BeanFactory创建后，
     对BeanFactory的自定义操作。
-    5. invokeBeanFactoryPostProcessors(beanFactory);
+    5.invokeBeanFactoryPostProcessors(beanFactory);
     重点方法：这里调用了postProcessBeanDefinitionRegistry(registry)、
         postProcessBeanFactory(registry);springboot中很多激活自动配置的
         注解都是通过这里导入的。
@@ -54,7 +54,7 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
             1.ConfigurationClassPostProcessor，内部包含@Configuration、
                 @Bean、@Import、@ImportSource、@Component、@ComponentScan、
                 @PropertySources等注解的支持 
-    6. registerBeanPostProcessors(beanFactory);重点方法：从beanFactory
+    6.registerBeanPostProcessors(beanFactory);重点方法：从beanFactory
     中获取所有的BeanPostProcessor，优先进行getBean操作，实例化
     接口及子接口
         BeanPostProcess 定义了类初始化之前、之后的方法回调
@@ -70,16 +70,16 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
             的的方法回调
             DestructionAwareBeanPostProcessor 定义了bean销毁之前的方法回调
                 InitDestroyAnnotationBeanPostProcessor
-    7. initMessageSource();国际化支持，不常用，未加注释。	
-    8. initApplicationEventMulticaster();初始化ApplicationEventMulticaster。 
+    7.initMessageSource();国际化支持，不常用，未加注释。	
+    8.initApplicationEventMulticaster();初始化ApplicationEventMulticaster。 
     如果上下文中未定义，
       则使用SimpleApplicationEventMulticaster。		
-    9. onRefresh();钩子方法，springBoot中的嵌入式tomcat就是通过此方法实现的
-    10. registerListeners();监听器注册
-    11. finishBeanFactoryInitialization(beanFactory);重点方法：完成容器中
+    9.onRefresh();钩子方法，springBoot中的嵌入式tomcat就是通过此方法实现的
+    10.registerListeners();监听器注册
+    11.finishBeanFactoryInitialization(beanFactory);重点方法：完成容器中
     bean的实例化，及代理的生成等操作。
         这里面包含内容getBean、依赖注入、生成代理等。具体看代码。
-    12. finishRefresh();完成此上下文的刷新，调用LifecycleProcessor的onRefresh
+    12.finishRefresh();完成此上下文的刷新，调用LifecycleProcessor的onRefresh
     方法并发布
 
 2.bean实例化
