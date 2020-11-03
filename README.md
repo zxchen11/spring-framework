@@ -63,7 +63,7 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
                 RequiredAnnotationBeanPostProcessor
                 AutowiredAnnotationBeanPostProcessor
                 CommonAnnotationBeanPostProcessor
-            MergedBeanDefinitionPostProcessor 定义的类实例化之后 依赖注入之前方法回调
+            MergedBeanDefinitionPostProcessor bean实例化之后依赖注入之前方法回调
             DestructionAwareBeanPostProcessor 定义了bean销毁之前的方法回调
                 InitDestroyAnnotationBeanPostProcessor
     7.initMessageSource();国际化支持，不常用，未加注释。	
