@@ -24,7 +24,7 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
 
 ## <img src="src/docs/asciidoc/images/set-jar-maven-library.png" width="1096" height="377">
 
-## 概览
+## 核心功能概览（源码中大量详细中文注释）
 
 1.spring上下文初始化核心流程（refresh方法）
         
@@ -187,5 +187,4 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
             -> cleanupTransactionInfo)
             /(cleanupTransactionInfo -> commitTransactionAfterReturning)
         事务的执行流程不好描述，具体可看源码中的注释，很详细。
-5.MVC中DispatcherServlet核心流程：HanlderMapping、HanlderAdapter扩展等。<br/>
-6.更多知识点见源码中注释，上面列举的，没列举的都有。很详细。
+5.MVC中DispatcherServlet核心流程：HanlderMapping、HanlderAdapter扩展等。
