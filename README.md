@@ -76,7 +76,7 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
         12.finishRefresh();完成此上下文的刷新，调用LifecycleProcessor的onRefresh
         方法并发布
 
-2. bean实例化
+2. bean实例化流程
 
         所有单例bean实例化后回调接口SmartInitializingSingleton。Bean实例化流程：
         getBean 
@@ -109,7 +109,7 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
         如果实力是FactoryBean类型，调用factory.getObject();最终返回这个方法返回的实例.
         如果要获取源实例，需要在beanName前加&符号
     
-3. BeanPostProcessor扩展 --> AOP实现逻辑
+3. BeanPostProcessor扩展 --> AOP实现流程
         
         1.AOP的生成：
             -> AbstractAutoProxyCreator.postProcessAfterInitialization 
@@ -154,7 +154,7 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
                 -> invokeJoinpoint
                 -> 有火炬传递的，向上跳出，执行后置增强并返回。
             
-4. BeanPostProcessor扩展 --> 事务实现逻辑，传播行为原理
+4. BeanPostProcessor扩展 --> 事务实现代码流程
         
         1.入口：EnableTransactionManagement
         -> @Import(TransactionManagementConfigurationSelector.class) 
