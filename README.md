@@ -132,7 +132,8 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
                     包装为Advisor，策略模式，消除执行链时的ifelse）
                         —> resolveInterceptorNames（事务增强会在这里面）
                     -> getProxy生成代理对象
-                        -> createAopProxy(JdkDynamicAopProxy/ObjenesisCglibAopProxy)
+                        -> createAopProxy
+                        (JdkDynamicAopProxy/ObjenesisCglibAopProxy)
                         -> getProxy
                             -> if(JdkDynamicAopProxy) 
                                 -> Proxy.newProxyInstance    
