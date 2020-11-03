@@ -72,7 +72,7 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
         9.onRefresh();钩子方法，springBoot中的嵌入式tomcat就是通过此方法实现的
         10.registerListeners();监听器注册
         11.finishBeanFactoryInitialization(beanFactory);重点方法：完成容器中bean的
-        实例化及代理的生成等操作。这里面包含内容getBean、依赖注入、生成代理等。具体看代码。
+        实例化及代理的生成等操作。这里面包含内容getBean、依赖注入、生成代理等。
         12.finishRefresh();完成此上下文的刷新，调用LifecycleProcessor的onRefresh
         方法并发布
 
