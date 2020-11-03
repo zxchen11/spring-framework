@@ -23,9 +23,12 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
         5. invokeBeanFactoryPostProcessors(beanFactory);重点方法：
             这里调用了postProcessBeanDefinitionRegistry(registry)、postProcessBeanFactory(registry);
             springboot中很多激活自动配置的注解都是通过这里导入的。
-            重点关注：AnnotationConfigUtils.registerAnnotationConfigProcessors，注册的内置的BeanDefinitionRegistryPostProcess
-                1.ConfigurationClassPostProcessor，内部包含@Configuration、@Bean、@Import、@ImportSource、@Component、@ComponentScan、@PropertySources等注解的支持 
-        6. registerBeanPostProcessors(beanFactory);重点方法：从beanFactory中获取所有的BeanPostProcessor，优先进行getBean操作，实例化
+            重点关注：AnnotationConfigUtils.registerAnnotationConfigProcessors，注册的内置的
+            BeanDefinitionRegistryPostProcess
+                1.ConfigurationClassPostProcessor，内部包含@Configuration、@Bean、@Import、@ImportSource、
+                @Component、@ComponentScan、@PropertySources等注解的支持 
+        6. registerBeanPostProcessors(beanFactory);重点方法：从beanFactory中获取所有的BeanPostProcessor，
+        优先进行getBean操作，实例化
             接口及子接口
             BeanPostProcess 定义了类初始化之前、之后的方法回调
                 InstantiationAwareBeanPostProcessor 定义了类实例化之前、之后、依赖注入的方法回调
@@ -38,7 +41,8 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
                 DestructionAwareBeanPostProcessor 定义了bean销毁之前的方法回调
                     InitDestroyAnnotationBeanPostProcessor
         7. initMessageSource();国际化支持，不常用，未加注释。	
-        8. initApplicationEventMulticaster();初始化ApplicationEventMulticaster。 如果上下文中未定义，则使用SimpleApplicationEventMulticaster。		
+        8. initApplicationEventMulticaster();初始化ApplicationEventMulticaster。 如果上下文中未定义，
+          则使用SimpleApplicationEventMulticaster。		
         9. onRefresh();钩子方法，springBoot中的嵌入式tomcat就是通过此方法实现的
         10. registerListeners();监听器注册
         11. finishBeanFactoryInitialization(beanFactory);重点方法：完成容器中bean的实例化，及代理的生成等操作。
@@ -63,7 +67,8 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
                             -> applyBeanPostProcessorsBeforeInitialization -> invokeInitMethods
                             -> applyBeanPostProcessorsAfterInitialization AOP入口
                 ->addSingleton()添加一级缓存
-        -> getObjectForBeanInstance 如果实力是FactoryBean类型，调用factory.getObject();最终返回这个方法返回的实例，如果要获取源实例，需要在beanName前加&符号
+        -> getObjectForBeanInstance 如果实力是FactoryBean类型，调用factory.getObject();最终返回这个方法返回的实例，
+        如果要获取源实例，需要在beanName前加&符号
     3.BeanPostProcessor扩展 --> AOP实现逻辑
         1.AOP的生成：
             AbstractAutoProxyCreator.postProcessAfterInitialization -> wrapIfNecessary
@@ -82,26 +87,33 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。
                     -> getProxy生成代理对象
                         -> createAopProxy(JdkDynamicAopProxy/ObjenesisCglibAopProxy) -> getProxy
                             if(JdkDynamicAopProxy) -> Proxy.newProxyInstance    
-                            if(ObjenesisCglibAopProxy) -> createProxyClassAndInstance -> newInstance -> setCallbacks
+                            if(ObjenesisCglibAopProxy) -> createProxyClassAndInstance -> newInstance -> 
+                            setCallbacks
         2.AOP执行链的执行（以JDK动态代理为例）：
             JdkDynamicAopProxy.invoke -> getInterceptorsAndDynamicInterceptionAdvice
             -> invocation = new ReflectiveMethodInvocation -> invocation.proceed()
                 -> currentInterceptorIndex未达到执行链末尾 -> 获取切面是InterceptorAndDynamicMethodMatcher
-                -> dm.interceptor.invoke(this);执行切面增强，并将自身作为参数传递，火炬传递。比如around中会议JoinPoint为参数，内部调用时又会调用到proceed方法
+                -> dm.interceptor.invoke(this);执行切面增强，并将自身作为参数传递，火炬传递。比如around中会议JoinPoint为参数，
+                内部调用时又会调用到proceed方法
                 -> currentInterceptorIndex达到执行链末尾 -> invokeJoinpoint -> 有火炬传递的，向上跳出，执行后置增强并返回。
     4.BeanPostProcessor扩展 --> 事务实现逻辑，传播行为原理
-        1.入口：EnableTransactionManagement -> @Import(TransactionManagementConfigurationSelector.class) -> ProxyTransactionManagementConfiguration
-        -> 包含一系列的@Bean标识的方法，其中transactionAdvisor返回对应BeanFactoryTransactionAttributeSourceAdvisor，这个类是事务增强类。
-        2.事务属性搜集：getTransactionAttribute -> computeTransactionAttribute -> findTransactionAttribute -> determineTransactionAttribute
-            -> parseTransactionAnnotation -> 查找Transactional注解 -> parseTransactionAnnotation -> AnnotationAttributes转换为TransactionAttribute
+        1.入口：EnableTransactionManagement -> @Import(TransactionManagementConfigurationSelector.class) -> 
+        ProxyTransactionManagementConfiguration
+        -> 包含一系列的@Bean标识的方法，其中transactionAdvisor返回对应BeanFactoryTransactionAttributeSourceAdvisor，
+        这个类是事务增强类。
+        2.事务属性搜集：getTransactionAttribute -> computeTransactionAttribute -> findTransactionAttribute -> 
+        determineTransactionAttribute -> parseTransactionAnnotation -> 查找Transactional注解 -> 
+        parseTransactionAnnotation -> AnnotationAttributes转换为TransactionAttribute
         3.事务拦截器执行流程：TransactionInterceptor，getBean中AOP生成代理对象时，会将这个方法拦截器加入执行链中
-            invoke -> invokeWithinTransaction(invocation.getMethod(), targetClass, invocation::proceed(这个是执行链的回调函数))
+            invoke -> invokeWithinTransaction(invocation.getMethod(), targetClass, 
+            invocation::proceed(这个是执行链的回调函数))
                 -> determineTransactionManager -> createTransactionIfNecessary
                     -> getTransaction 
                         -> isExistingTransaction -> handleExistingTransaction
                         -> definition.getPropagationBehavior()==reauired、requiredNew、nested -> doBegin
                     -> prepareTransactionInfo
-                -> proceedWithInvocation -> (completeTransactionAfterThrowing -> cleanupTransactionInfo)/(cleanupTransactionInfo -> commitTransactionAfterReturning)
+                -> proceedWithInvocation -> (completeTransactionAfterThrowing -> cleanupTransactionInfo)/
+                (cleanupTransactionInfo -> commitTransactionAfterReturning)
             事务的执行流程不好描述，具体可看源码中的注释，很详细。
     5.MVC中DispatcherServlet核心流程：HanlderMapping、HanlderAdapter扩展等。
     6.更多知识点见源码中注释，上面列举的，没列举的都有。很详细。
