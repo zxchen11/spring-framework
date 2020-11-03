@@ -1,7 +1,8 @@
 # <img src="src/docs/asciidoc/images/spring-framework.png" width="80" height="80"> Spring Framework
 
 ## 概览
-spring源码阅读，理解spring核心模块的实现原理，实现流程。添加中文注释，以下内容已添加注释：
+spring源码阅读，理解spring各个模块的实现原理，实现流程。
+源码中添加了大量的中文注释（关键模块都有），以下是spring核心模块实现逻辑概览，更详细注释再源码中。
     
     1.spring上下文初始化核心流程（refresh方法）
         1. prepareRefresh(); refresh之前的准备工作，内部调用逻辑已注释
