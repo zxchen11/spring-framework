@@ -22,7 +22,8 @@ public class SpringSourceMvcAnoApplication {
 	public void start() throws Exception {
 		LOG.info("=================开始加载内嵌tomcat=====================");
 		String userDir = System.getProperty("user.dir");
-		String webappDir = userDir + File.separator + "/target/spring-source-mvc-ano-1.0-SNAPSHOT";
+		// String webappDir = userDir + File.separator + "/target/spring-source-mvc-ano-1.0-SNAPSHOT";
+		String webappDir = userDir + File.separator + "/src/main/webapp";
 
 		Tomcat tomcat = new Tomcat();
 		tomcat.setBaseDir(userDir);
@@ -35,7 +36,7 @@ public class SpringSourceMvcAnoApplication {
 		LOG.info("port:{}", PORT);
 		LOG.info("context_path:{}", webappDir);
 
-		System.setProperty("tomcat.util.scan.StandardJarScanFilter.jarsToSkip", "\\,*");
+		// System.setProperty("tomcat.util.scan.StandardJarScanFilter.jarsToSkip", "\\,*");
 		tomcat.start();
 		LOG.info("==================tomcat加载成功==========================");
 		LOG.info("测试地址：http://localhost:8080/index");
