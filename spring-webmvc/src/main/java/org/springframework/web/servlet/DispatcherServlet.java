@@ -585,7 +585,9 @@ public class DispatcherServlet extends FrameworkServlet {
 		this.handlerMappings = null;
 
 		if (this.detectAllHandlerMappings) {
+			logger.debug("detectAllHandlerMappings --> true");
 			// Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
+			// 获取到IOC容器中所有的HandlerMapping实例映射
 			Map<String, HandlerMapping> matchingBeans =
 					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
 			if (!matchingBeans.isEmpty()) {
@@ -595,6 +597,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 		else {
+			logger.debug("detectAllHandlerMappings --> false");
 			try {
 				HandlerMapping hm = context.getBean(HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
 				this.handlerMappings = Collections.singletonList(hm);
@@ -625,6 +628,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		if (this.detectAllHandlerAdapters) {
 			// Find all HandlerAdapters in the ApplicationContext, including ancestor contexts.
+			// 从IOC容器中获取所有的HandlerAdapter实例
 			Map<String, HandlerAdapter> matchingBeans =
 					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerAdapter.class, true, false);
 			if (!matchingBeans.isEmpty()) {
