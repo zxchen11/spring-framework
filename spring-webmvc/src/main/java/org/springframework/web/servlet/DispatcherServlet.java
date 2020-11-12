@@ -996,6 +996,23 @@ public class DispatcherServlet extends FrameworkServlet {
 		HandlerExecutionChain mappedHandler = null;
 		boolean multipartRequestParsed = false;
 
+		/* TODO
+		    预处理：
+		        1. 获取HandlerMethod和过滤器链的包装类（url-hanlderMethod映射）：HandlerExecutionChain，里面包含了handlerMethod对象
+		        2. 根据handlerMethod对象，找到合适的HandlerAdapter对象，这里用到了策略模式
+		    调用链：
+		        1. 前置拦截，正向遍历调用，若有返回false，则调用后置处理，返回。
+				    interceptor.preHandle(request, response, this.handler)
+				    triggerAfterCompletion(request, response, null);
+			    2. 根据HandlerAdapter获取真正的处理类，执行：((Controller) handler).handleRequest(request, response)
+			    3. 中置拦截，反向遍历调用。 interceptor.postHandle(request, response, this.handler, mv);
+			    4. 视图渲染，在视图渲染之后，会在视图渲染方法中调用后置处理。
+			        render(mv, request, response);
+			        if (mappedHandler != null) {
+						mappedHandler.triggerAfterCompletion(request, response, null);
+				    }
+			*/
+
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 
 		try {
