@@ -1012,7 +1012,7 @@ public class DispatcherServlet extends FrameworkServlet {
 						mappedHandler.triggerAfterCompletion(request, response, null);
 				    }
 			*/
-
+		// 异步管理
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 
 		try {
@@ -1020,9 +1020,11 @@ public class DispatcherServlet extends FrameworkServlet {
 			Exception dispatchException = null;
 
 			try {
+				// 文件上传
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 
+				// TODO 这个方法很重要，重点看
 				// Determine handler for the current request.
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
@@ -1030,6 +1032,7 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
+				// TODO 获取跟HandlerMethod匹配的HandlerAdapter对象
 				// Determine handler adapter for the current request.
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
@@ -1043,10 +1046,12 @@ public class DispatcherServlet extends FrameworkServlet {
 					}
 				}
 
+				// 前置过滤器，如果为false则直接返回
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
 
+				// TODO 调用到Controller具体方法，核心方法调用，重点看看
 				// Actually invoke the handler.
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
@@ -1239,8 +1244,10 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	@Nullable
 	protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+		// handlerMappering实例
 		if (this.handlerMappings != null) {
 			for (HandlerMapping mapping : this.handlerMappings) {
+				// 获取HandlerMethod和过滤器链的包装类
 				HandlerExecutionChain handler = mapping.getHandler(request);
 				if (handler != null) {
 					return handler;
@@ -1275,6 +1282,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @throws ServletException if no HandlerAdapter can be found for the handler. This is a fatal error.
 	 */
 	protected HandlerAdapter getHandlerAdapter(Object handler) throws ServletException {
+		// 根据handlerMethod对象，找到合适的HandlerAdapter对象，这里用到了策略模式
 		if (this.handlerAdapters != null) {
 			for (HandlerAdapter adapter : this.handlerAdapters) {
 				if (adapter.supports(handler)) {
