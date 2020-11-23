@@ -26,5 +26,6 @@
         <property name="name" value="旺旺"/>
         <replaced-method name="getColor" replacer="dogReplaceColor"/>
     </bean>
+    <bean name="customBeanFactoryPostProcessor" class="top.wlz922.global.CustomBeanDefinitionRegistryPostProcessor"/>
     <import resource="classpath:spring2.xml"/>
 </beans>
