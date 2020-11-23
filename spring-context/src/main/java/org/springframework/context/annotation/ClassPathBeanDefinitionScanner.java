@@ -266,21 +266,26 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 */
 	protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
+		// 用来装所有扫描到的类的BeanDefinition对象。
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 		for (String basePackage : basePackages) {
-			// 查找候选组件，封装成BeanDefinition。
+			// TODO 重点看：查找候选组件，封装成BeanDefinition。
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 			for (BeanDefinition candidate : candidates) {
+				// 获取到ScopeMetadata，如果类中有@Scope注解，则会将值封装到这个实例中。然后设置到BeanDefinition中。
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
+				// 对不同类型的BeanDefinition做不同的处理。
 				if (candidate instanceof AbstractBeanDefinition) {
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
+				// 对不同类型的BeanDefinition做不同的处理，@Lazy、@DependOn等注解信息封装就是在这里设置的。
 				if (candidate instanceof AnnotatedBeanDefinition) {
 					// 一些注解信息的封装
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
+				// 校验是否是需要实例化的BeanDefinition，如果为true，则将BeanDefinition包装成BeanDefinitionHolder（这个类里封装了实例名称、别名信息）
 				if (checkCandidate(beanName, candidate)) {
 					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
 					definitionHolder =

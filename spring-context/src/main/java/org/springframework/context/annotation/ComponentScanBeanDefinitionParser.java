@@ -99,6 +99,7 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 		// 创建扫描器，其实mybatis中的扫描原理就来自于此，mybatis中的ClassPathMapperScanner继承了ClassPathBeanDefinitionScanner
 		// Delegate bean definition registration to scanner class.
 		ClassPathBeanDefinitionScanner scanner = createScanner(parserContext.getReaderContext(), useDefaultFilters);
+		// 下面的代码是对标签中其他属性的一些设置，其实就是把标签及其属性以java类的描述形式体现。
 		scanner.setBeanDefinitionDefaults(parserContext.getDelegate().getBeanDefinitionDefaults());
 		scanner.setAutowireCandidatePatterns(parserContext.getDelegate().getAutowireCandidatePatterns());
 
