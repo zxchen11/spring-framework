@@ -435,13 +435,16 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		if (!isConfigurationFrozen() || type == null || !allowEagerInit) {
 			return doGetBeanNamesForType(ResolvableType.forRawClass(type), includeNonSingletons, allowEagerInit);
 		}
+		// 从缓存中获取
 		Map<Class<?>, String[]> cache =
 				(includeNonSingletons ? this.allBeanNamesByType : this.singletonBeanNamesByType);
 		String[] resolvedBeanNames = cache.get(type);
 		if (resolvedBeanNames != null) {
 			return resolvedBeanNames;
 		}
+		// 这里是获取的逻辑
 		resolvedBeanNames = doGetBeanNamesForType(ResolvableType.forRawClass(type), includeNonSingletons, true);
+		// 设置缓存
 		if (ClassUtils.isCacheSafe(type, getBeanClassLoader())) {
 			cache.put(type, resolvedBeanNames);
 		}
@@ -450,11 +453,12 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	private String[] doGetBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
 		List<String> result = new ArrayList<>();
-
+		// 从前面流程扫描到的BeanDefinition中，获取指定类型的BeanDefinition名称的集合。
 		// Check all bean definitions.
 		for (String beanName : this.beanDefinitionNames) {
 			// Only consider bean as eligible if the bean name
 			// is not defined as alias for some other bean.
+			// 非别名
 			if (!isAlias(beanName)) {
 				try {
 					RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
@@ -471,6 +475,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 								(includeNonSingletons ||
 										(dbd != null ? mbd.isSingleton() : isSingleton(beanName))) &&
 								isTypeMatch(beanName, type);
+						// 如果这个类是FactoryBean类型，则修改beanName，在原beanName前加一个前缀&
 						if (!matchFound && isFactoryBean) {
 							// In case of FactoryBean, try to match FactoryBean instance itself next.
 							beanName = FACTORY_BEAN_PREFIX + beanName;
