@@ -18,7 +18,7 @@ import static top.wlz922.constant.StatisticsConstant.THREAD_LOCAL_STOP_WATCH;
 @Component
 @Slf4j
 @Order(1)
-public class CustomHandlerInterceptor implements HandlerInterceptor {
+public class CustomHandlerInterceptor implements HandlerInterceptor, HaldlerInterceptorPathPattern {
 	final String CLASS_NAME = CustomHandlerInterceptor2.class.getSimpleName();
 
 	@Override
@@ -41,5 +41,10 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 		log.debug("CustomHandlerInterceptor.afterCompletion() execute...");
 		// 记录运行时间点
 		StopWatchUtils.snapshot(THREAD_LOCAL_STOP_WATCH.get(), CLASS_NAME + ".preHandle");
+	}
+
+	@Override
+	public String[] getPathPatterns() {
+		return new String[]{"/mirror"};
 	}
 }

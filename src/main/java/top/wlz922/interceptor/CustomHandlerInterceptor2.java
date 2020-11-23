@@ -18,7 +18,7 @@ import static top.wlz922.constant.StatisticsConstant.THREAD_LOCAL_STOP_WATCH;
 @Component
 @Slf4j
 @Order(2)
-public class CustomHandlerInterceptor2 implements HandlerInterceptor {
+public class CustomHandlerInterceptor2 implements HandlerInterceptor, HaldlerInterceptorPathPattern {
 	final String CLASS_NAME = CustomHandlerInterceptor2.class.getSimpleName();
 
 	@Override

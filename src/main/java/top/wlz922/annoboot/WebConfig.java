@@ -9,10 +9,8 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
+import top.wlz922.interceptor.HaldlerInterceptorPathPattern;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +19,7 @@ import java.util.List;
  * @author Eddie
  */
 @EnableWebMvc
-@ComponentScan(value = {"top.wlz922.controller","top.wlz922.interceptor"}
+@ComponentScan(value = {"top.wlz922.controller", "top.wlz922.interceptor", "top.wlz922.resolver"}
 //		, includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Controller.class})}
 //		, useDefaultFilters = true
 )
@@ -57,7 +55,11 @@ public class WebConfig implements WebMvcConfigurer {
 	public void addInterceptors(InterceptorRegistry registry) {
 		if (interceptors != null) {
 			for (HandlerInterceptor interceptor : interceptors) {
-				registry.addInterceptor(interceptor);
+				InterceptorRegistration registration = registry.addInterceptor(interceptor);
+				if (interceptor instanceof HaldlerInterceptorPathPattern) {
+					String[] pathPatterns = ((HaldlerInterceptorPathPattern) interceptor).getPathPatterns();
+					registration.addPathPatterns(pathPatterns);
+				}
 			}
 		}
 	}
