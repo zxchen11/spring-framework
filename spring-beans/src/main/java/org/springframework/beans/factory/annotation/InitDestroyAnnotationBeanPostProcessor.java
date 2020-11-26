@@ -182,6 +182,8 @@ public class InitDestroyAnnotationBeanPostProcessor
 			synchronized (this.lifecycleMetadataCache) {
 				metadata = this.lifecycleMetadataCache.get(clazz);
 				if (metadata == null) {
+					// 上面代码是缓存，这里加锁的技巧，先无锁尝试，尝试失败再加锁。
+					// 细节：加锁中需要再次尝试获取一次。
 					metadata = buildLifecycleMetadata(clazz);
 					this.lifecycleMetadataCache.put(clazz, metadata);
 				}
@@ -199,7 +201,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 		do {
 			final List<LifecycleElement> currInitMethods = new ArrayList<>();
 			final List<LifecycleElement> currDestroyMethods = new ArrayList<>();
-
+			// 循环遍历所有的方法，查找初始化、销毁方法，如果查找到，就封装为LifecycleMetadata返回。
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
 				if (this.initAnnotationType != null && method.isAnnotationPresent(this.initAnnotationType)) {
 					LifecycleElement element = new LifecycleElement(method);
@@ -216,12 +218,14 @@ public class InitDestroyAnnotationBeanPostProcessor
 				}
 			});
 
+			// 添加初始化、销毁方法
 			initMethods.addAll(0, currInitMethods);
 			destroyMethods.addAll(currDestroyMethods);
 			targetClass = targetClass.getSuperclass();
 		}
 		while (targetClass != null && targetClass != Object.class);
 
+		// 将上面步骤收集到的初始化、销毁方法封装起来返回。
 		return new LifecycleMetadata(clazz, initMethods, destroyMethods);
 	}
 

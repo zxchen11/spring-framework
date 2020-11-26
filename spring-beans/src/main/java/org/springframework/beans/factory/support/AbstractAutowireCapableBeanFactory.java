@@ -1309,7 +1309,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		boolean continueWithPropertyPopulation = true;
 
 		// TODO 如果有存在 InstantiationAwareBeanPostProcessor实例，并且postProcessAfterInstantiation()返回值为false，
-		//  那么所有bean都将无法注入属性值。
+		//  那么属性的依赖注入将被中断。
 		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {

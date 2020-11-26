@@ -180,6 +180,7 @@ class DisposableBeanAdapter implements DisposableBean, Runnable, Serializable {
 			// in case of the bean not explicitly implementing DisposableBean
 			if (!(bean instanceof DisposableBean)) {
 				try {
+					// 叫close名字的方法也是bean销毁前调用的方法
 					return bean.getClass().getMethod(CLOSE_METHOD_NAME).getName();
 				}
 				catch (NoSuchMethodException ex) {
