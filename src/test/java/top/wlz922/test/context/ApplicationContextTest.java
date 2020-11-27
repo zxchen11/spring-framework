@@ -2,9 +2,12 @@ package top.wlz922.test.context;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import top.wlz922.bean.Dog;
 import top.wlz922.bean.DogFactory;
+import top.wlz922.cyclic.CyclicGoodsService;
+import top.wlz922.cyclic.CyclicOrderService;
 
 @Slf4j
 public class ApplicationContextTest {
@@ -23,5 +26,14 @@ public class ApplicationContextTest {
 
 		Dog dogReplacer = context.getBean("dogReplacer", Dog.class);
 		log.debug(dogReplacer.toString());
+	}
+
+	@Test
+	public void testCyclicDependence(){
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("top.wlz922.cyclic");
+		CyclicGoodsService goodsService = context.getBean(CyclicGoodsService.class);
+		CyclicOrderService orderService = context.getBean(CyclicOrderService.class);
+		log.debug(goodsService.toString());
+		log.debug(orderService.toString());
 	}
 }
