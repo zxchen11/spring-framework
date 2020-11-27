@@ -59,12 +59,22 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements SingletonBeanRegistry {
 
+	/** 一级缓存 里面存储的是bean实例，在bean实例化完成、依赖注入、代理生成等流程全部完成之后，会存储到这个容器中 */
 	/** Cache of singleton objects: bean name to bean instance. */
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
 
+	/**
+	 * 三级缓存，在单例bean刚刚创建完成时，会将其封装成一个ObjectFactory对象，存储到这个容器中。键值是beanName。
+	 * 从源码中可以看到，实际上是提供了一些通过BeanPostProcessor进行的扩展操作。这里不会执行，只是把这个扩展操作流程封装起来。
+	 * 实际上，这里封装的一个函数式接口，在这里可以通过BeanPostProcessor进行一些扩展操作，其节点是bean实例化之后，
+	 * 在真正getBean时，会触发调用。 */
 	/** Cache of singleton factories: bean name to ObjectFactory. */
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
+	/**
+	 * 二级缓存 从三级缓存获取后，会将bean实例存储到二级缓存，并从三级缓存中移除。这里封装了一个函数式接口的匿名实例，
+	 *  依赖注入过程中通过getBean方法获取这个实例时，可以对其进行一些指定操作，比如说aop代理对象生成，就可能在这里触发。
+	 */
 	/** Cache of early singleton objects: bean name to bean instance. */
 	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
@@ -140,6 +150,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		Assert.notNull(singletonFactory, "Singleton factory must not be null");
 		synchronized (this.singletonObjects) {
 			if (!this.singletonObjects.containsKey(beanName)) {
+				// 将这个bean，和匿名对象，存储到三级缓存。匿名对象中封装了一个扩展点的操作。
 				this.singletonFactories.put(beanName, singletonFactory);
 				this.earlySingletonObjects.remove(beanName);
 				this.registeredSingletons.add(beanName);

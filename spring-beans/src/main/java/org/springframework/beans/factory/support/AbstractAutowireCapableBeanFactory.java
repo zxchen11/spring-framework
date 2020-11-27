@@ -526,6 +526,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
+			// 提前暴露bean实例的引用，这时候的bean是刚刚创建完成的，还没有进行属性的依赖注入、等流程处理。
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
@@ -887,6 +888,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 */
 	protected Object getEarlyBeanReference(String beanName, RootBeanDefinition mbd, Object bean) {
 		Object exposedObject = bean;
+		// 获取早期的Bean对象的引用，这时候的Bean还没有完成依赖注入及其后面的流程。
+		// 在这里获取引用时，支持一些扩展操作，其扩展内容是通过 getEarlyBeanReference() 实现的。
+		// getEarlyBeanReference() 来自 BeanPostProcessor 的子接口 SmartInstantiationAwareBeanPostProcessor。
 		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
