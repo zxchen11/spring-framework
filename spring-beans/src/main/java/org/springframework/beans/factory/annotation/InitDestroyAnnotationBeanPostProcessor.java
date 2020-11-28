@@ -72,10 +72,11 @@ public class InitDestroyAnnotationBeanPostProcessor
 		implements DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor, PriorityOrdered, Serializable {
 
 	protected transient Log logger = LogFactory.getLog(getClass());
-
+	/** bean的初始化方法，依赖注入后执行。在CommonAnnotationBeanPostProcessor中，设置了此变量的值，PostConstruct.class */
 	@Nullable
 	private Class<? extends Annotation> initAnnotationType;
 
+	/** bean的销毁前方法，也叫临终方法。在CommonAnnotationBeanPostProcessor中，设置了此变量的值，PreDestroy.class */
 	@Nullable
 	private Class<? extends Annotation> destroyAnnotationType;
 
@@ -119,6 +120,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 
 	@Override
 	public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+		// 查找、封装支持的元数据，对注解的支持。
 		LifecycleMetadata metadata = findLifecycleMetadata(beanType);
 		metadata.checkConfigMembers(beanDefinition);
 	}
@@ -202,6 +204,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 			final List<LifecycleElement> currInitMethods = new ArrayList<>();
 			final List<LifecycleElement> currDestroyMethods = new ArrayList<>();
 			// 循环遍历所有的方法，查找初始化、销毁方法，如果查找到，就封装为LifecycleMetadata返回。
+			// 查找 @PostConstruct 和 @PreDestroy 注解的方法
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
 				if (this.initAnnotationType != null && method.isAnnotationPresent(this.initAnnotationType)) {
 					LifecycleElement element = new LifecycleElement(method);
@@ -249,9 +252,9 @@ public class InitDestroyAnnotationBeanPostProcessor
 	private class LifecycleMetadata {
 
 		private final Class<?> targetClass;
-
+		/** 外部管理的初始化方法 */
 		private final Collection<LifecycleElement> initMethods;
-
+		/** 外部管理的销毁前方法 */
 		private final Collection<LifecycleElement> destroyMethods;
 
 		@Nullable

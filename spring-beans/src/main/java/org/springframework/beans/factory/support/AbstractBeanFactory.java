@@ -1672,6 +1672,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		}
 
 		Object object = null;
+		// 如果BeanDefinition为null，从缓存中获取，doGetBean() 中传入的就是null
+		// createBean后进入这里的话，传入的就不是null
 		if (mbd == null) {
 			object = getCachedObjectForFactoryBean(beanName);
 		}
