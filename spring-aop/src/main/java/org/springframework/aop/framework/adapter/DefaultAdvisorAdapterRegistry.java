@@ -78,6 +78,8 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 
 	@Override
 	public MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {
+		// 从Advice获取MethodInterceptor，before、afterReturning、afterThrows类型的增强会是AdvisorAdapter类型，
+		// 其他自定义的增强方法，都是MethodInterceptor类型，被强转后，直接加入到interceptors中。
 		List<MethodInterceptor> interceptors = new ArrayList<>(3);
 		Advice advice = advisor.getAdvice();
 		if (advice instanceof MethodInterceptor) {

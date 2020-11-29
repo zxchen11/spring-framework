@@ -119,7 +119,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 		}
 		Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised, true);
 		findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
-		// 创建代理对象
+		// 创建代理对象，参数中的InvocationHandler传入的是this，那么本类中一定有invoke()，在调用代理类方法时，就会执行这个invoke()。
 		return Proxy.newProxyInstance(classLoader, proxiedInterfaces, this);
 	}
 
@@ -158,10 +158,12 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 		Object oldProxy = null;
 		boolean setProxyContext = false;
 
+		// 从代理工厂中拿到TargetSource对象，该对象包装了被代理实例bean
 		TargetSource targetSource = this.advised.targetSource;
 		Object target = null;
 
 		try {
+			//被代理对象的equals方法和hashCode方法不被代理的，不会走切面
 			if (!this.equalsDefined && AopUtils.isEqualsMethod(method)) {
 				// The target does not implement the equals(Object) method itself.
 				return equals(args[0]);
@@ -190,12 +192,15 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 
 			// Get as late as possible to minimize the time we "own" the target,
 			// in case it comes from a pool.
+			// 这个target就是被代理实例
 			target = targetSource.getTarget();
 			Class<?> targetClass = (target != null ? target.getClass() : null);
 
 			// Get the interception chain for this method.
+			// 从代理工厂中拿过滤器链 Object是一个MethodInterceptor类型的对象，其实就是一个advice对象，或者说是MethodInterceptor
 			List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 
+			// 如果该方法没有执行链，则说明这个方法不需要被拦截，则直接反射调用
 			// Check whether we have any advice. If we don't, we can fallback on direct
 			// reflective invocation of the target, and avoid creating a MethodInvocation.
 			if (chain.isEmpty()) {
@@ -206,6 +211,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
 			}
 			else {
+				// 这里面调用了执行链，在执行链的调用中，会进行火炬传递。具体执行流程，重点在ReflectiveMethodInvocation.proceed()。
 				// We need to create a method invocation...
 				invocation = new ReflectiveMethodInvocation(proxy, target, method, args, targetClass, chain);
 				// Proceed to the joinpoint through the interceptor chain.

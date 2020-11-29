@@ -79,6 +79,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	private Map<String, Object> userAttributes;
 
 	/**
+	 * 这里面封装了增强方法。
 	 * List of MethodInterceptor and InterceptorAndDynamicMethodMatcher
 	 * that need dynamic checks.
 	 */
