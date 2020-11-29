@@ -91,10 +91,12 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @see #extendAdvisors
 	 */
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
-		//查找到所有的增强
+		//查找到所有的增强方法，封装成Advisor对象。这里查找了两种增强，一种是实现了Advisor的实例，一种是带有@Aspect注解的bean实例中定义的增强方法。
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
+		// 根据每个增强中的切点表达式，进行匹配，筛选出合适的增强实例列表。
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
 		extendAdvisors(eligibleAdvisors);
+		// 对增强方法进行排序，可以不看。
 		if (!eligibleAdvisors.isEmpty()) {
 			eligibleAdvisors = sortAdvisors(eligibleAdvisors);
 		}
@@ -124,6 +126,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 
 		ProxyCreationContext.setCurrentProxiedBeanName(beanName);
 		try {
+			// 这里进行了匹配
 			return AopUtils.findAdvisorsThatCanApply(candidateAdvisors, beanClass);
 		}
 		finally {

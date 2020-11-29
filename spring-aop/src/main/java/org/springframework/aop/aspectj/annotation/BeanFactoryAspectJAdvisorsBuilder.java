@@ -81,7 +81,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	 */
 	public List<Advisor> buildAspectJAdvisors() {
 		List<String> aspectNames = this.aspectBeanNames;
-
+		// 第一次进来时为空，这里用到了双检索
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
@@ -104,13 +104,17 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 						// 判断当前beanType是否是一个切面。判断类上是否有@Aspect
 						if (this.advisorFactory.isAspect(beanType)) {
 							aspectNames.add(beanName);
+							// 创建切面元数据实例，里面封装了切面类型，切点表达式等信息。
 							AspectMetadata amd = new AspectMetadata(beanType, beanName);
+							// 默认就是SINGLETON
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
-								// 获取Advisor
+								// TODO 获取Advisor，这里封装了当前Aspect类中的增强方法，每个增强方法都会封装成一个Advisor。
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
 								if (this.beanFactory.isSingleton(beanName)) {
+									// 将Advisor放入到缓存中，从上面的流程获取时，会先走缓存，缓存中有，就不会遍历查找了。
+									// 这个代码块使用了双检索，这块代码在spring容器启动时，只会执行一次。
 									this.advisorsCache.put(beanName, classAdvisors);
 								}
 								else {
@@ -140,6 +144,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 		if (aspectNames.isEmpty()) {
 			return Collections.emptyList();
 		}
+		// 根据切面名称，从缓存中获取到指定的增强实例，封装起来返回。
 		List<Advisor> advisors = new ArrayList<>();
 		for (String aspectName : aspectNames) {
 			List<Advisor> cachedAdvisors = this.advisorsCache.get(aspectName);

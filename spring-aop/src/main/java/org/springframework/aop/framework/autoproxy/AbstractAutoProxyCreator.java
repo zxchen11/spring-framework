@@ -341,7 +341,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			return bean;
 		}
 
-		// TODO 重点：如果有需要增强，就创建代理对象，这里会判定此方法是否需要代理，如果需要，返回切面列表
+		// TODO 重点：如果有需要增强，就创建代理对象，这里会循环此类中所有的方法，如果有增强匹配到类中的方法，就会将增强对象封装到list中。
 		// Create proxy if we have advice.
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
@@ -457,7 +457,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 				evaluateProxyInterfaces(beanClass, proxyFactory);
 			}
 		}
-		// TODO 重点：创建切面
+		// TODO 重点：构建增强对象，这里会在原有的Advisor列表中，增加存在的MethodInterceptor
 		Advisor[] advisors = buildAdvisors(beanName, specificInterceptors);
 		proxyFactory.addAdvisors(advisors);
 		proxyFactory.setTargetSource(targetSource);
@@ -534,6 +534,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 		Advisor[] advisors = new Advisor[allInterceptors.size()];
 		for (int i = 0; i < allInterceptors.size(); i++) {
+			// 在这里进行构建的
 			advisors[i] = this.advisorAdapterRegistry.wrap(allInterceptors.get(i));
 		}
 		return advisors;
