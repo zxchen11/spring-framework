@@ -66,7 +66,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 						AbstractAspectJAdvisorFactory.findAspectJAnnotationOnMethod(method);
 					return (annotation != null ? annotation.getAnnotation() : null);
 				});
-		// 按照方法名称排序
+		// 先按照注解排序、如果是相同的注解，就按照方法名称排序。
 		Comparator<Method> methodNameComparator = new ConvertingComparator<>(Method::getName);
 		METHOD_COMPARATOR = adviceKindComparator.thenComparing(methodNameComparator);
 	}
@@ -144,7 +144,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 				methods.add(method);
 			}
 		});
-		// 这个比较器是按照方法名称来排序的。
+		// 先按照注解排序、如果是相同的注解，就按照方法名称排序。
 		methods.sort(METHOD_COMPARATOR);
 		return methods;
 	}
