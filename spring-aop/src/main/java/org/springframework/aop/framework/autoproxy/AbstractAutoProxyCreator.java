@@ -534,7 +534,10 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 		Advisor[] advisors = new Advisor[allInterceptors.size()];
 		for (int i = 0; i < allInterceptors.size(); i++) {
-			// 在这里进行构建的
+			// 在这里进行构建的，最终，所有的通知方法都会封装成Advisor。
+			// 实际上我们自己定义的切面，到这里时，都已经是Advisor了，没有做任何处理直接返回了。
+			// 之所以在这里要再进行封装，是因为Spring中涉及过多的拦截器，增强器，增强方法等方式来对逻辑进行增强，
+			// 有些情况allInterceptors中可能存在Advice对象，所以非常有必要统一封装成Advisor
 			advisors[i] = this.advisorAdapterRegistry.wrap(allInterceptors.get(i));
 		}
 		return advisors;
@@ -548,6 +551,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		BeanFactory bf = this.beanFactory;
 		ConfigurableBeanFactory cbf = (bf instanceof ConfigurableBeanFactory ? (ConfigurableBeanFactory) bf : null);
 		List<Advisor> advisors = new ArrayList<>();
+		// 这里会根据interceptorNames中存储的拦截器名称，获取到对应的bean实例，最终包装成Advisor，添加到列表中返回。
 		for (String beanName : this.interceptorNames) {
 			if (cbf == null || !cbf.isCurrentlyInCreation(beanName)) {
 				Assert.state(bf != null, "BeanFactory required for resolving interceptor names");

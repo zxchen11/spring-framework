@@ -123,7 +123,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 */
 	protected List<Advisor> findAdvisorsThatCanApply(
 			List<Advisor> candidateAdvisors, Class<?> beanClass, String beanName) {
-
+		// 将beanName放入到一个ThreadLocal类型的变量中。
 		ProxyCreationContext.setCurrentProxiedBeanName(beanName);
 		try {
 			// 这里进行了匹配
