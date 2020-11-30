@@ -535,7 +535,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try {
 			// 依赖注入，类似属性上带有@AutoWired注解的，都会在这里进行依赖注入
 			populateBean(beanName, mbd, instanceWrapper);
-			// 初始化bean
+			// 初始化bean、aop的入口
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {

@@ -126,6 +126,9 @@ public abstract class AopConfigUtils {
 		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
 			BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
 			if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
+				// 这里会有一个比较，在注册AbstractAdvisorAutoProxyCreator时，会有一个优先级。
+				// 如果这里已经注册过AbstractAdvisorAutoProxyCreator，在此注册的时候，
+				// 会与之前的注册的进行优先级比较，优先级高的会覆盖掉优先级低的。注解的优先级最高。
 				int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName());
 				int requiredPriority = findPriorityForClass(cls);
 				if (currentPriority < requiredPriority) {
@@ -134,7 +137,7 @@ public abstract class AopConfigUtils {
 			}
 			return null;
 		}
-
+		// 创建BeanDefinition，并设置一些属性。
 		RootBeanDefinition beanDefinition = new RootBeanDefinition(cls);
 		beanDefinition.setSource(source);
 		beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);

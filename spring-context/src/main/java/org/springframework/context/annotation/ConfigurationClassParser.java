@@ -152,7 +152,7 @@ class ConfigurationClassParser {
 					parse(((AbstractBeanDefinition) bd).getBeanClass(), holder.getBeanName());
 				}
 				else {
-					//执行解析
+					// TODO 执行解析，记着这个方法，这里在满足条件时会被递归调用。
 					parse(bd.getBeanClassName(), holder.getBeanName());
 				}
 			}

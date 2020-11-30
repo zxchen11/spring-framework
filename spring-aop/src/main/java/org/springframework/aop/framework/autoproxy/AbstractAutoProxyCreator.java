@@ -290,7 +290,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	@Override
 	public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
 		if (bean != null) {
-			// 如果是FactoryBean，cacheKey是 &+beanName拼接而成，如果benaName为空，则是类名称。
+			// 如果是FactoryBean，cacheKey是 &+beanName拼接而成，如果benaName为空，则是beanClass。
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
 			if (!this.earlyProxyReferences.contains(cacheKey)) {
 				// TODO 必要时包装给定的bean，即是否有资格被代理。
