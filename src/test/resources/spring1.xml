@@ -28,4 +28,5 @@
     </bean>
     <bean name="customBeanFactoryPostProcessor" class="top.wlz922.global.CustomBeanDefinitionRegistryPostProcessor"/>
     <import resource="classpath:spring2.xml"/>
+    <aop:aspectj-autoproxy/>
 </beans>
