@@ -85,6 +85,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	 */
 	protected final List<?> interceptorsAndDynamicMethodMatchers;
 
+	// 当前执行链的索引，标识执行到哪一个通知方法了。
 	/**
 	 * Index from 0 of the current interceptor we're invoking.
 	 * -1 until we invoke: then the current interceptor.
@@ -161,6 +162,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 		//	We start with an index of -1 and increment early.
 		// 如果执行链中的advice全部执行完，则直接调用joinPoint方法，就是被代理方法。
 		// 这里的成员变量currentInterceptorIndex会记录目前执行到哪一个增强方法了。
+		// 最终一定会返回代理方法的返回值，因为没有其他路径返回了，其他路径都是递归调用。
 		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
 			return invokeJoinpoint();
 		}
@@ -168,6 +170,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 		// 执行到这个方法，说明进入到了增强方法，当前执行的索引+1，当执行到最后一个时，此值会与执行链的长度-1相等，这时候就会调用被代理方法。
 		Object interceptorOrInterceptionAdvice =
 				this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);
+		// 这段不用看，直接看else里面的代码。
 		if (interceptorOrInterceptionAdvice instanceof InterceptorAndDynamicMethodMatcher) {
 			// Evaluate dynamic method matcher here: static part will already have
 			// been evaluated and found to match.
@@ -175,6 +178,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 					(InterceptorAndDynamicMethodMatcher) interceptorOrInterceptionAdvice;
 			Class<?> targetClass = (this.targetClass != null ? this.targetClass : this.method.getDeclaringClass());
 			if (dm.methodMatcher.matches(this.method, targetClass, this.arguments)) {
+				// 与上面的索引判断后执行业务方法类似。
 				return dm.interceptor.invoke(this);
 			}
 			else {
