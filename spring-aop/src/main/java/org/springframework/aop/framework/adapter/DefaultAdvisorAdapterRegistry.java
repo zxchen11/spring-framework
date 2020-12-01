@@ -46,6 +46,7 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 	 * Create a new DefaultAdvisorAdapterRegistry, registering well-known adapters.
 	 */
 	public DefaultAdvisorAdapterRegistry() {
+		// 注册三种适配器。
 		registerAdvisorAdapter(new MethodBeforeAdviceAdapter());
 		registerAdvisorAdapter(new AfterReturningAdviceAdapter());
 		registerAdvisorAdapter(new ThrowsAdviceAdapter());
@@ -81,13 +82,15 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 
 	@Override
 	public MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {
-		// 从Advice获取MethodInterceptor，before、afterReturning、afterThrows类型的增强会是AdvisorAdapter类型，
+		// 从Advice获取MethodInterceptor。before、afterReturning的增强会被AdvisorAdapter匹配到。
 		// 其他自定义的增强方法，都是MethodInterceptor类型，被强转后，直接加入到interceptors中。
 		List<MethodInterceptor> interceptors = new ArrayList<>(3);
 		Advice advice = advisor.getAdvice();
+		// 如果是MethodInterceptor，将其添加到拦截器链中
 		if (advice instanceof MethodInterceptor) {
 			interceptors.add((MethodInterceptor) advice);
 		}
+		// 如果有AdviceorAdapter支持当前advice，进行适配，获取interceptor。adapters变量的值，是在无参构造函数中初始化的。
 		for (AdvisorAdapter adapter : this.adapters) {
 			if (adapter.supportsAdvice(advice)) {
 				interceptors.add(adapter.getInterceptor(advisor));

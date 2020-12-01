@@ -125,6 +125,8 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	@SuppressWarnings("unchecked")
 	@Nullable
 	protected static AspectJAnnotation<?> findAspectJAnnotationOnMethod(Method method) {
+		// 注意这个遍历的变量，里面封装了Pointcut.class, Around.class, Before.class, After.class, AfterReturning.class, AfterThrowing。
+		// 此变量作为一个静态常量存在。
 		for (Class<?> clazz : ASPECTJ_ANNOTATION_CLASSES) {
 			// 循环去找注解，并把注解信息解析出来，包装成AspectJAnnotation
 			AspectJAnnotation<?> foundAnnotation = findAnnotation(method, (Class<Annotation>) clazz);

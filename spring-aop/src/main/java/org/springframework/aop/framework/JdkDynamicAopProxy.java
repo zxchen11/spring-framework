@@ -163,7 +163,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 		Object target = null;
 
 		try {
-			//被代理对象的equals方法和hashCode方法不被代理的，不会走切面
+			// 被代理对象的equals方法和hashCode方法不被代理的，不会走切面
 			if (!this.equalsDefined && AopUtils.isEqualsMethod(method)) {
 				// The target does not implement the equals(Object) method itself.
 				return equals(args[0]);
