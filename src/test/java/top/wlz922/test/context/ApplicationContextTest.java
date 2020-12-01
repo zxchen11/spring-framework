@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import top.wlz922.aspect.Apple;
+import top.wlz922.aspect.Fruit;
 import top.wlz922.bean.Dog;
 import top.wlz922.bean.DogFactory;
 import top.wlz922.cyclic.CyclicGoodsService;
@@ -42,7 +42,7 @@ public class ApplicationContextTest {
 	@Test
 	public void testAnoAop(){
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AspectAnoConfiguration.class);
-		Apple apple = context.getBean(Apple.class);
+		Fruit apple = context.getBean(Fruit.class);
 		apple.showTaste();
 	}
 }
