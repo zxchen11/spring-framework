@@ -1,7 +1,8 @@
-package top.wlz922.test.config;
+package top.wlz922.annoboot;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +22,9 @@ import java.io.IOException;
  *
  * @author Eddie
  */
-@EnableTransactionManagement
 @Configuration
+@MapperScan(basePackages = "top.wlz922.dao")
+@EnableTransactionManagement
 public class GlobalTransactionConfig {
 	@Autowired
 	ApplicationContext context;

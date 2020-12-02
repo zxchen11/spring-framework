@@ -33,7 +33,9 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <includes>**/**</includes>
+                <includes>
+                    <include>**/**</include>
+                </includes>
             </resource>
         </resources>
     </build>
@@ -217,6 +219,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
             <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper</artifactId>
+            <version>5.2.0</version>
         </dependency>
     </dependencies>
 

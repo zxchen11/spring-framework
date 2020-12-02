@@ -5,7 +5,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import top.wlz922.bean.TRole;
 import top.wlz922.service.RoleService;
 import top.wlz922.test.config.AspectAnoConfiguration;
-import top.wlz922.test.config.GlobalTransactionConfig;
+import top.wlz922.annoboot.GlobalTransactionConfig;
 
 public class TransactionTest {
 	@Test
