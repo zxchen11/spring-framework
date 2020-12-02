@@ -15,6 +15,11 @@
     from t_role
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="listRole" resultType="top.wlz922.bean.TRole">
+    select
+    <include refid="Base_Column_List" />
+    from t_role limit 10
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from t_role
     where id = #{id,jdbcType=INTEGER}
