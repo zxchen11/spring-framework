@@ -33,7 +33,7 @@ public class CustomAspect {
 		log.info("CustomAspect.afterThrowing execute...");
 	}
 
-	@Around("pointCut()")
+	@Around(value = "pointCut()")
 	public Object around(ProceedingJoinPoint pjp) throws Throwable {
 		log.info("CustomAspect.around before execute...");
 		Object obj = pjp.proceed();

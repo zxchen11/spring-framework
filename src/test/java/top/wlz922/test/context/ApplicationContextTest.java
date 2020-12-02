@@ -43,6 +43,7 @@ public class ApplicationContextTest {
 	public void testAnoAop(){
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AspectAnoConfiguration.class);
 		Fruit apple = context.getBean(Fruit.class);
-		apple.showTaste();
+		// apple.showTaste();
+		apple.seed("hello world");
 	}
 }

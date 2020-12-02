@@ -8,7 +8,12 @@ import org.springframework.stereotype.Component;
 public class Apple implements Fruit {
 
 	@Override
-	public void showTaste(){
+	public void showTaste() {
 		log.info("Apple is sour and sweet.");
+	}
+
+	@Override
+	public void seed(String type) {
+		log.info("Apple seed type is {}.", type);
 	}
 }
