@@ -16,13 +16,12 @@
 
 package org.springframework.aop.aspectj;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-
 import org.springframework.aop.AfterAdvice;
+
+import java.io.Serializable;
+import java.lang.reflect.Method;
 
 /**
  * Spring AOP advice wrapping an AspectJ after advice method.
@@ -44,6 +43,10 @@ public class AspectJAfterAdvice extends AbstractAspectJAdvice
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		try {
+			// 先执行执行链，当所有执行链中的通知方法，及被代理方法执行完毕，会继续往下走。
+			// 最终，在finally语句块中，调用后置通知方法。卸载finally语句块里，是让在执行链中及被代理方法执行完毕，但还未返回时，执行后置通知方法。
+			// 这里有点绕。 A(around) -> B(after) -> C(around)，假设有这三个切面组成执行链，他们执行顺序按照前面的排序。
+			// 执行顺序是这样的：A环绕前置通知 -> B invoke中通知调用执行链下一个节点（这里没有实际的执行内容，只是做一个火炬传递） -> C环绕前置通知 -> C环绕后置通知 -> B后置通知（这时候B中调用完，返回前掉finally语句块） -> A环绕后置通知。
 			return mi.proceed();
 		}
 		finally {
