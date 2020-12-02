@@ -381,11 +381,13 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 		int numUnboundArgs = this.parameterTypes.length;
 		// 获取切面通知方法的参数列表
 		Class<?>[] parameterTypes = this.aspectJAdviceMethod.getParameterTypes();
+		// 从这里可以看出，方法的第一个参数必须是JoinPoint类型的
 		if (maybeBindJoinPoint(parameterTypes[0]) || maybeBindProceedingJoinPoint(parameterTypes[0]) ||
 				maybeBindJoinPointStaticPart(parameterTypes[0])) {
 			numUnboundArgs--;
 		}
-
+		// 类似这种 @Around("pc1()") around(ProceedingJoinPoint joinPoint)
+		// 方法只有一个参数，numUnboundArgs是0，就不需要参数绑定了
 		if (numUnboundArgs > 0) {
 			// 需要通过切入点匹配返回的名称绑定参数
 			// need to bind arguments by name as returned from the pointcut match
@@ -472,14 +474,14 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	private void bindExplicitArguments(int numArgumentsLeftToBind) {
 		Assert.state(this.argumentNames != null, "No argument names available");
 		this.argumentBindings = new HashMap<>();
-
+		// 获取参数的数量
 		int numExpectedArgumentNames = this.aspectJAdviceMethod.getParameterCount();
 		if (this.argumentNames.length != numExpectedArgumentNames) {
 			throw new IllegalStateException("Expecting to find " + numExpectedArgumentNames +
 					" arguments to bind by name in advice, but actually found " +
 					this.argumentNames.length + " arguments.");
 		}
-
+		// 参数索引偏移量，也就是前面已经绑定过的参数，需要跳过，这里记录的是跳过已绑定参数后的下一个索引值。
 		// So we match in number...
 		int argumentIndexOffset = this.parameterTypes.length - numArgumentsLeftToBind;
 		for (int i = argumentIndexOffset; i < this.argumentNames.length; i++) {
@@ -509,7 +511,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 				this.discoveredThrowingType = this.aspectJAdviceMethod.getParameterTypes()[index];
 			}
 		}
-
+		// 把参数对应的名称和对应的参数的类型设置到pointcut中
 		// configure the pointcut expression accordingly.
 		configurePointcutParameters(this.argumentNames, argumentIndexOffset);
 	}
@@ -527,6 +529,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 		if (this.throwingName != null) {
 			numParametersToRemove++;
 		}
+		// 这里装的是参数名称，排除了已绑定的JoinPoint
 		String[] pointcutParameterNames = new String[argumentNames.length - numParametersToRemove];
 		Class<?>[] pointcutParameterTypes = new Class<?>[pointcutParameterNames.length];
 		Class<?>[] methodParameterTypes = this.aspectJAdviceMethod.getParameterTypes();
@@ -540,11 +543,12 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 				argumentNames[i].equals(this.throwingName)) {
 				continue;
 			}
+			// 将参数名称，封装到pointcutParameterNames中，将参数类型封装到pointcutParameterTypes中。
 			pointcutParameterNames[index] = argumentNames[i];
 			pointcutParameterTypes[index] = methodParameterTypes[i];
 			index++;
 		}
-
+		// 将未绑定的参数名称数组、参数类型数组，封装到成员变量 pointcut。
 		this.pointcut.setParameterNames(pointcutParameterNames);
 		this.pointcut.setParameterTypes(pointcutParameterTypes);
 	}
@@ -681,6 +685,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	// are guaranteed to bind in exactly the same way.
 	@Nullable
 	protected JoinPointMatch getJoinPointMatch(ProxyMethodInvocation pmi) {
+		// 切点表达式
 		String expression = this.pointcut.getExpression();
 		return (expression != null ? (JoinPointMatch) pmi.getUserAttribute(expression) : null);
 	}
