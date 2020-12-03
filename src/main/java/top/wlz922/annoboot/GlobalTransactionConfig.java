@@ -11,7 +11,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
@@ -29,7 +28,7 @@ public class GlobalTransactionConfig {
 	@Autowired
 	ApplicationContext context;
 	@Bean
-	public TransactionManager getTransactionManager(@Autowired DataSource ds){
+	public DataSourceTransactionManager getTransactionManager(@Autowired DataSource ds){
 		DataSourceTransactionManager manager = new DataSourceTransactionManager();
 		manager.setDataSource(ds);
 		return manager;
