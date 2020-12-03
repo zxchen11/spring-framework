@@ -27,6 +27,8 @@ import java.io.IOException;
 public class GlobalTransactionConfig {
 	@Autowired
 	ApplicationContext context;
+
+
 	@Bean
 	public DataSourceTransactionManager getTransactionManager(@Autowired DataSource ds){
 		DataSourceTransactionManager manager = new DataSourceTransactionManager();
