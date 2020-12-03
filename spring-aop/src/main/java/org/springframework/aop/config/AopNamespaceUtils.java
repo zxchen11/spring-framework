@@ -55,7 +55,9 @@ public abstract class AopNamespaceUtils {
 
 	public static void registerAutoProxyCreatorIfNecessary(
 			ParserContext parserContext, Element sourceElement) {
-
+		// TODO 注册AOP支持的BeanPostProcessor，实际上，由于存在优先级，这里的最终并不会被注入。其实无论是
+		//  <aop:aspectj-autoproxy/> 还是 @EnableAspectJAutoProxy激活自动代理功能，
+		//  最终都是使用AnnotationAwareAspectJAutoProxyCreator
 		BeanDefinition beanDefinition = AopConfigUtils.registerAutoProxyCreatorIfNecessary(
 				parserContext.getRegistry(), parserContext.extractSource(sourceElement));
 		useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
@@ -82,10 +84,15 @@ public abstract class AopNamespaceUtils {
 
 	private static void useClassProxyingIfNecessary(BeanDefinitionRegistry registry, @Nullable Element sourceElement) {
 		if (sourceElement != null) {
+			// 解析proxy-target-class标签属性
 			boolean proxyTargetClass = Boolean.parseBoolean(sourceElement.getAttribute(PROXY_TARGET_CLASS_ATTRIBUTE));
 			if (proxyTargetClass) {
+				// 将 proxyTargetClass 属性设置为true
 				AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);
 			}
+			// 解析expose-proxy属性值。如果设置为true，在被代理对象方法内，可以通过 AopContext.currentProxy()获取当前代理对象，
+			// 如果被代理对象调用本类中方法，就会导致通知方法失效，这时候如果想要继续使用通知方法，可以配置expose-proxy=true，就可以通过
+			// 上面说的方法获取。TODO 其实真正使用中并不会这么做，通过注入自身实例作为本类中成员变量，通过这个成员变量来达到调用代理对象目的。
 			boolean exposeProxy = Boolean.parseBoolean(sourceElement.getAttribute(EXPOSE_PROXY_ATTRIBUTE));
 			if (exposeProxy) {
 				AopConfigUtils.forceAutoProxyCreatorToExposeProxy(registry);

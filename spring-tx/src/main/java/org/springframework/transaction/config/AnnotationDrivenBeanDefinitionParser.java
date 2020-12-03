@@ -64,7 +64,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 		// 注意：区分@AspectJ：@AspectJ注册的是AnnotationAwareAspectJAutoProxyCreator，最终按照优先级来确定使用哪个的。
 		registerTransactionalEventListenerFactory(parserContext);
 		String mode = element.getAttribute("mode");
-		// 根据mode的值，来确定注册哪种类型的事务支持。
+		// 根据mode的值，来确定注册哪种类型的事务支持。这个不常用，可以不看。着重看else里面的内容。
 		if ("aspectj".equals(mode)) {
 			// mode="aspectj"
 			registerTransactionAspect(element, parserContext);
@@ -81,12 +81,14 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void registerTransactionAspect(Element element, ParserContext parserContext) {
+		// 这里注册了 AnnotationTransactionAspect，beanName=org.springframework.transaction.config.internalTransactionAspect
 		String txAspectBeanName = TransactionManagementConfigUtils.TRANSACTION_ASPECT_BEAN_NAME;
 		String txAspectClassName = TransactionManagementConfigUtils.TRANSACTION_ASPECT_CLASS_NAME;
 		if (!parserContext.getRegistry().containsBeanDefinition(txAspectBeanName)) {
 			RootBeanDefinition def = new RootBeanDefinition();
 			def.setBeanClassName(txAspectClassName);
 			def.setFactoryMethodName("aspectOf");
+			// 注册事务管理器，其实这里只是向def中添加一个属性。
 			registerTransactionManager(element, def);
 			parserContext.registerBeanComponent(new BeanComponentDefinition(def, txAspectBeanName));
 		}
@@ -123,6 +125,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	private static class AopAutoProxyConfigurer {
 
 		public static void configureAutoProxyCreator(Element element, ParserContext parserContext) {
+			// TODO 注册Advisor
 			AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
 			// 这里是一个常量，事务Advisor，等后面实例化时，如果匹配到方法，Advisor会封装到代理对象的执行链里面。
 			String txAdvisorBeanName = TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME;
