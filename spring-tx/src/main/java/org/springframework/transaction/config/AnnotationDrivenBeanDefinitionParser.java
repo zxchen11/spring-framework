@@ -60,8 +60,11 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	@Override
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		// 1、注册InfrastructureAdvisorAutoProxyCreator  Infrastructure-->基础设施，优先级最低。
+		// 注意：区分@AspectJ：@AspectJ注册的是AnnotationAwareAspectJAutoProxyCreator，最终按照优先级来确定使用哪个的。
 		registerTransactionalEventListenerFactory(parserContext);
 		String mode = element.getAttribute("mode");
+		// 根据mode的值，来确定注册哪种类型的事务支持。
 		if ("aspectj".equals(mode)) {
 			// mode="aspectj"
 			registerTransactionAspect(element, parserContext);
@@ -70,6 +73,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 			}
 		}
 		else {
+			// 默认值是proxy，主要看这个。
 			// mode="proxy"
 			AopAutoProxyConfigurer.configureAutoProxyCreator(element, parserContext);
 		}
@@ -120,11 +124,12 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 
 		public static void configureAutoProxyCreator(Element element, ParserContext parserContext) {
 			AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
-
+			// 这里是一个常量，事务Advisor，等后面实例化时，如果匹配到方法，Advisor会封装到代理对象的执行链里面。
 			String txAdvisorBeanName = TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME;
 			if (!parserContext.getRegistry().containsBeanDefinition(txAdvisorBeanName)) {
 				Object eleSource = parserContext.extractSource(element);
 
+				// 创建AnnotationTransactionAttributeSource的BeanDefinition，这是一个策略接口的实现。用于获取事务注解的属性值。
 				// Create the TransactionAttributeSource definition.
 				RootBeanDefinition sourceDef = new RootBeanDefinition(
 						"org.springframework.transaction.annotation.AnnotationTransactionAttributeSource");
@@ -132,6 +137,8 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 				sourceDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 				String sourceName = parserContext.getReaderContext().registerWithGeneratedName(sourceDef);
 
+				// 创建对应的MethodInterceptor，这是事务的方法拦截器，最终在生成代理的时候，会缓存到AdvisedSupport中，第一次调用执行生成执行链的时候，
+				// 如果匹配对应的方法，就会将方法名-MethodInterceptor的映射关系存储到执行链。同样是缓存到AdvisedSupport中。
 				// Create the TransactionInterceptor definition.
 				RootBeanDefinition interceptorDef = new RootBeanDefinition(TransactionInterceptor.class);
 				interceptorDef.setSource(eleSource);
@@ -140,6 +147,9 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 				interceptorDef.getPropertyValues().add("transactionAttributeSource", new RuntimeBeanReference(sourceName));
 				String interceptorName = parserContext.getReaderContext().registerWithGeneratedName(interceptorDef);
 
+				// 创建BeanFactoryTransactionAttributeSourceAdvisor的BeanDefinition，并注册到registry中。当bean在实例化，
+				// 查找容器中所有的增强方法时，会对所有的@Aspect封装成Advisor并实例化，以及直接注入进来的Advisor提前实例化，缓存到AdvisedSupport中。
+				// 从接口层面说，这里创建一个Advisor。
 				// Create the TransactionAttributeSourceAdvisor definition.
 				RootBeanDefinition advisorDef = new RootBeanDefinition(BeanFactoryTransactionAttributeSourceAdvisor.class);
 				advisorDef.setSource(eleSource);

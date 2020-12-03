@@ -288,8 +288,10 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		 *  PROPAGATION_NOT_SUPPORTED 以非事务方式运行。如果当前存在事务，挂起当前事务。
 		 */
 
+		// 事务属性的获取
 		// If the transaction attribute is null, the method is non-transactional.
 		TransactionAttributeSource tas = getTransactionAttributeSource();
+		// TODO getTransactionAttribute中是获取事务注解属性的具体逻辑。
 		final TransactionAttribute txAttr = (tas != null ? tas.getTransactionAttribute(method, targetClass) : null);
 		// 获取事务管理器
 		final PlatformTransactionManager tm = determineTransactionManager(txAttr);

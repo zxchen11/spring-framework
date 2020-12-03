@@ -71,6 +71,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	/** The AdvisorChainFactory to use. */
 	AdvisorChainFactory advisorChainFactory = new DefaultAdvisorChainFactory();
 
+	// 方法包装类-执行链 映射关系。这里是容器中所有 代理对象方法封装和匹配的方法拦截器，所构建执行链的映射关系。
 	/** Cache with Method as key and advisor chain List as value. */
 	private transient Map<MethodCacheKey, List<Object>> methodCache;
 
@@ -81,6 +82,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	private List<Class<?>> interfaces = new ArrayList<>();
 
 	/**
+	 * 封装了容器中所有的Advisor实例，这些实例可能是直接注入进来的，也可能是自定义切面，包装而成的Advisor
 	 * List of Advisors. If an Advice is added, it will be wrapped
 	 * in an Advisor before being added to this List.
 	 */

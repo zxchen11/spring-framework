@@ -182,6 +182,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	 * @since 5.0
 	 */
 	protected DataSource obtainDataSource() {
+		// 获取到数据源对象。
 		DataSource dataSource = getDataSource();
 		Assert.state(dataSource != null, "No DataSource set");
 		return dataSource;
@@ -236,6 +237,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	protected Object doGetTransaction() {
 		DataSourceTransactionObject txObject = new DataSourceTransactionObject();
 		txObject.setSavepointAllowed(isNestedTransactionAllowed());
+		// 从一个ThreadLocal变量中获取的ConnectionHolder，如果上层方法已经存在事务，这里面是有值的，否则就是null。
 		ConnectionHolder conHolder =
 				(ConnectionHolder) TransactionSynchronizationManager.getResource(obtainDataSource());
 		txObject.setConnectionHolder(conHolder, false);
@@ -257,6 +259,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 		Connection con = null;
 
 		try {
+			// 如果当前事务对象没有持有链接，就获取一个，并设置到链接持有变量中。
 			if (!txObject.hasConnectionHolder() ||
 					txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
 				Connection newCon = obtainDataSource().getConnection();
@@ -265,8 +268,9 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 				}
 				txObject.setConnectionHolder(new ConnectionHolder(newCon), true);
 			}
-
+			// 设置事务同步为true，标识使用了事务。
 			txObject.getConnectionHolder().setSynchronizedWithTransaction(true);
+			// 获取数据库连接对象。
 			con = txObject.getConnectionHolder().getConnection();
 
 			// 设置事务隔离级别
@@ -287,13 +291,17 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
 			// 如果Transaction中配置了只读，这里会将事务设置为只读属性
 			prepareTransactionalConnection(con, definition);
+			// 在事务链接持有对象中，设置事务活跃状态为true
 			txObject.getConnectionHolder().setTransactionActive(true);
 
+			// 查找配置的事务超时时间，如果未配置，会使用默认的。默认值为-1，表示永不超时。
 			int timeout = determineTimeout(definition);
 			if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
+				// 在链接持有对象中设置超时时间，从这里可以看出，单位是秒。
 				txObject.getConnectionHolder().setTimeoutInSeconds(timeout);
 			}
 
+			// 如果事务对象是在当前代理方法中new的，则绑定到ThreadLocal变量中。
 			// Bind the connection holder to the thread.
 			if (txObject.isNewConnectionHolder()) {
 				TransactionSynchronizationManager.bindResource(obtainDataSource(), txObject.getConnectionHolder());

@@ -16,13 +16,13 @@
 
 package org.springframework.jdbc.datasource;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Savepoint;
-
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.support.ResourceHolderSupport;
 import org.springframework.util.Assert;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Savepoint;
 
 /**
  * Resource holder wrapping a JDBC {@link Connection}.
@@ -46,18 +46,18 @@ public class ConnectionHolder extends ResourceHolderSupport {
 	 */
 	public static final String SAVEPOINT_NAME_PREFIX = "SAVEPOINT_";
 
-
+	/** 连接处理，获取链接、释放连接。 */
 	@Nullable
 	private ConnectionHandle connectionHandle;
-
+	/** 当前连接对象 */
 	@Nullable
 	private Connection currentConnection;
-
+	/** 事务活动状态 */
 	private boolean transactionActive = false;
-
+	/** 是否设置了保存点 */
 	@Nullable
 	private Boolean savepointsSupported;
-
+	/** 保存点计数器，因为连接是绑定到线程的，所有不需要原子类型 */
 	private int savepointCounter = 0;
 
 

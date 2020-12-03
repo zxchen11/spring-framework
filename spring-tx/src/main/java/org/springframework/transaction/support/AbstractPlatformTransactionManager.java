@@ -330,6 +330,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 */
 	@Override
 	public final TransactionStatus getTransaction(@Nullable TransactionDefinition definition) throws TransactionException {
+		// 获取事务对象
 		Object transaction = doGetTransaction();
 
 		// Cache debug flag to avoid repeated checks.
@@ -340,9 +341,11 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			definition = new DefaultTransactionDefinition();
 		}
 
-		// TODO 如果当前已经存在事务，按照已存在事务的方式判断传播行为，进行处理
+		// 判断是否已经存在事务。如果当前事务对象已经持有了链接，并且事务是活跃状态，则表示已经存在事务。
+		// 如果当前已经存在事务，按照已存在事务的方式判断传播行为，进行处理
 		if (isExistingTransaction(transaction)) {
 			// Existing transaction found -> check propagation behavior to find out how to behave.
+			// TODO 如果当前已存在事务，会走到此方法逻辑进行处理。
 			return handleExistingTransaction(definition, transaction, debugEnabled);
 		}
 
@@ -429,12 +432,14 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				logger.debug("Suspending current transaction, creating new transaction with name [" +
 						definition.getName() + "]");
 			}
+			// 挂起当前事务，由于PROPAGATION_REQUIRES_NEW的特性，需要使用新的事务，所以要将当前事务挂起，当新的事务执行完毕时，会恢复这个挂起的事务。
 			SuspendedResourcesHolder suspendedResources = suspend(transaction);
 			try {
 				boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
 				// TODO 可以看到，这里创建事务对象时，构造函数中的参数newTransaction为true。
 				DefaultTransactionStatus status = newTransactionStatus(
 						definition, transaction, true, newSynchronization, debugEnabled, suspendedResources);
+				// PROPAGATION_REQUIRES_NEW表示总是新启一个事务，这里会新开启事务。
 				doBegin(transaction, definition);
 				prepareSynchronization(status, definition);
 				return status;
@@ -568,6 +573,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * @see #setDefaultTimeout
 	 */
 	protected int determineTimeout(TransactionDefinition definition) {
+		// 如果配置的事务的超时时间，不是默认时间-1，则返回配置的超时时间。-1表示没有超时时间，如果执行sql在数据库中阻塞，会一直等待。
 		if (definition.getTimeout() != TransactionDefinition.TIMEOUT_DEFAULT) {
 			return definition.getTimeout();
 		}
@@ -592,7 +598,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			try {
 				Object suspendedResources = null;
 				if (transaction != null) {
-					// TODO 重点：如果存在事务，则挂起事务
+					// TODO 重点：如果存在事务，则挂起事务，其实就是从ThreadLocal变量中解绑连接。
 					suspendedResources = doSuspend(transaction);
 				}
 				String name = TransactionSynchronizationManager.getCurrentTransactionName();
@@ -603,7 +609,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(null);
 				boolean wasActive = TransactionSynchronizationManager.isActualTransactionActive();
 				TransactionSynchronizationManager.setActualTransactionActive(false);
-				// 返回一个挂起资源持有对象
+				// 返回一个挂起资源持有对象，这个对象中封装了当前已存在事务的具体信息。这个对象会存储到新开启事务的TransactionStatus中。
 				return new SuspendedResourcesHolder(
 						suspendedResources, suspendedSynchronizations, name, readOnly, isolationLevel, wasActive);
 			}
