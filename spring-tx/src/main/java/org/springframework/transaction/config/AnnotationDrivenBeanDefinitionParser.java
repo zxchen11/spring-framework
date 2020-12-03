@@ -60,8 +60,10 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	@Override
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
-		// 1、注册InfrastructureAdvisorAutoProxyCreator  Infrastructure-->基础设施，优先级最低。
-		// 注意：区分@AspectJ：@AspectJ注册的是AnnotationAwareAspectJAutoProxyCreator，最终按照优先级来确定使用哪个的。
+		// 当前方法注册了InfrastructureAdvisorAutoProxyCreator  Infrastructure-->基础设施，优先级最低。
+		// 注意：区分@Aspect以及<aop:aspectj-autoproxy/>：两者注册的是AnnotationAwareAspectJAutoProxyCreator，最终按照优先级来确定使用哪个的。
+
+		// 注册事务事件监听器，@TransactionalEventListener注解的支持。可以不看。
 		registerTransactionalEventListenerFactory(parserContext);
 		String mode = element.getAttribute("mode");
 		// 根据mode的值，来确定注册哪种类型的事务支持。这个不常用，可以不看。着重看else里面的内容。
@@ -73,7 +75,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 			}
 		}
 		else {
-			// 默认值是proxy，主要看这个。
+			// TODO 默认值是proxy，主要看这个。
 			// mode="proxy"
 			AopAutoProxyConfigurer.configureAutoProxyCreator(element, parserContext);
 		}
@@ -113,6 +115,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 
 	private void registerTransactionalEventListenerFactory(ParserContext parserContext) {
 		RootBeanDefinition def = new RootBeanDefinition();
+		// 注册事务事件监听器，@TransactionalEventListener注解的支持。
 		def.setBeanClass(TransactionalEventListenerFactory.class);
 		parserContext.registerBeanComponent(new BeanComponentDefinition(def,
 				TransactionManagementConfigUtils.TRANSACTIONAL_EVENT_LISTENER_FACTORY_BEAN_NAME));
@@ -146,6 +149,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 				RootBeanDefinition interceptorDef = new RootBeanDefinition(TransactionInterceptor.class);
 				interceptorDef.setSource(eleSource);
 				interceptorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+				// 注意，这里只注入了一个名字，PlatformTransactionManager需要我们手动注入到容器，在创建TransactionInterceptor时，会通过getBean()来获取
 				registerTransactionManager(element, interceptorDef);
 				interceptorDef.getPropertyValues().add("transactionAttributeSource", new RuntimeBeanReference(sourceName));
 				String interceptorName = parserContext.getReaderContext().registerWithGeneratedName(interceptorDef);

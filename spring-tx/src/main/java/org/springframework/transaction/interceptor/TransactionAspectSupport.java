@@ -250,6 +250,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 */
 	@Override
 	public void afterPropertiesSet() {
+		// 开启事务支持，那么PlatformTransactionManager和TransactionAttributeSource这两个实例是必须有的，否则启动就会抛出异常。
 		if (getTransactionManager() == null && this.beanFactory == null) {
 			throw new IllegalStateException(
 					"Set the 'transactionManager' property or make sure to run within a BeanFactory " +

@@ -246,6 +246,7 @@ class ConfigurationClassParser {
 		// Component注解支持
 		if (configClass.getMetadata().isAnnotated(Component.class.getName())) {
 			// Recursively process any member (nested) classes first
+			// 处理成员类
 			processMemberClasses(configClass, sourceClass);
 		}
 
@@ -502,6 +503,7 @@ class ConfigurationClassParser {
 	private Set<SourceClass> getImports(SourceClass sourceClass) throws IOException {
 		Set<SourceClass> imports = new LinkedHashSet<>();
 		Set<SourceClass> visited = new LinkedHashSet<>();
+		// 收集@import注解。
 		collectImports(sourceClass, imports, visited);
 		return imports;
 	}
@@ -521,7 +523,7 @@ class ConfigurationClassParser {
 	 */
 	private void collectImports(SourceClass sourceClass, Set<SourceClass> imports, Set<SourceClass> visited)
 			throws IOException {
-
+		// 获取所有的注解，遍历判断注解是否是@Import，将其搜集起来
 		if (visited.add(sourceClass)) {
 			for (SourceClass annotation : sourceClass.getAnnotations()) {
 				String annName = annotation.getMetadata().getClassName();
@@ -551,6 +553,7 @@ class ConfigurationClassParser {
 			this.importStack.push(configClass);
 			try {
 				for (SourceClass candidate : importCandidates) {
+					// 这里会处理ImportSelector类型的。
 					if (candidate.isAssignable(ImportSelector.class)) {
 						// Candidate class is an ImportSelector -> delegate to it to determine imports
 						Class<?> candidateClass = candidate.loadClass();
@@ -562,6 +565,8 @@ class ConfigurationClassParser {
 									configClass, (DeferredImportSelector) selector);
 						}
 						else {
+							// 实例化 ImportSelector 后，会执行selectImports()方法。获取到一个className数组。
+							// 将其封装为SourceClass，然后递归调用当前方法，最终会走到else语句块中。
 							String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
 							Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames);
 							processImports(configClass, currentSourceClass, importSourceClasses, false);
@@ -579,6 +584,7 @@ class ConfigurationClassParser {
 						configClass.addImportBeanDefinitionRegistrar(registrar, currentSourceClass.getMetadata());
 					}
 					else {
+						// 这里注册了 SourceClass
 						// Candidate class not an ImportSelector or ImportBeanDefinitionRegistrar ->
 						// process it as an @Configuration class
 						this.importStack.registerImport(
