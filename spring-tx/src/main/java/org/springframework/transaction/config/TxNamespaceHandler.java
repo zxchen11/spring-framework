@@ -52,9 +52,11 @@ public class TxNamespaceHandler extends NamespaceHandlerSupport {
 
 	@Override
 	public void init() {
-		// 事务标签属性的解析类注册
+		// advice通知方法有关的，<tx:advice /> <tx:attributes /> <tx:method /> 标签支持在这里。
 		registerBeanDefinitionParser("advice", new TxAdviceBeanDefinitionParser());
+		// annotation-driven 注解 @Transactional 支持。
 		registerBeanDefinitionParser("annotation-driven", new AnnotationDrivenBeanDefinitionParser());
+		// jta事务管理，可以不看。
 		registerBeanDefinitionParser("jta-transaction-manager", new JtaTransactionManagerBeanDefinitionParser());
 	}
 

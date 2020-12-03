@@ -16,24 +16,19 @@
 
 package org.springframework.transaction.config;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.w3c.dom.Element;
-
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.transaction.interceptor.NameMatchTransactionAttributeSource;
-import org.springframework.transaction.interceptor.NoRollbackRuleAttribute;
-import org.springframework.transaction.interceptor.RollbackRuleAttribute;
-import org.springframework.transaction.interceptor.RuleBasedTransactionAttribute;
-import org.springframework.transaction.interceptor.TransactionInterceptor;
+import org.springframework.transaction.interceptor.*;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
+import org.w3c.dom.Element;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * {@link org.springframework.beans.factory.xml.BeanDefinitionParser
@@ -74,7 +69,7 @@ class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 	@Override
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		builder.addPropertyReference("transactionManager", TxNamespaceHandler.getTransactionManagerName(element));
-
+		// 获取子标签 <tx:attributes>，这个子标签只能有一个。
 		List<Element> txAttributes = DomUtils.getChildElementsByTagName(element, ATTRIBUTES_ELEMENT);
 		if (txAttributes.size() > 1) {
 			parserContext.getReaderContext().error(
@@ -83,6 +78,7 @@ class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 		else if (txAttributes.size() == 1) {
 			// Using attributes source.
 			Element attributeSourceElement = txAttributes.get(0);
+			// TODO 解析子标签，将子标签封装为RootBeanDefinition
 			RootBeanDefinition attributeSourceDefinition = parseAttributeSource(attributeSourceElement, parserContext);
 			builder.addPropertyValue("transactionAttributeSource", attributeSourceDefinition);
 		}
@@ -94,21 +90,24 @@ class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 	}
 
 	private RootBeanDefinition parseAttributeSource(Element attrEle, ParserContext parserContext) {
+		// 获取子标签<tx:method />
 		List<Element> methods = DomUtils.getChildElementsByTagName(attrEle, METHOD_ELEMENT);
 		ManagedMap<TypedStringValue, RuleBasedTransactionAttribute> transactionAttributeMap =
 				new ManagedMap<>(methods.size());
 		transactionAttributeMap.setSource(parserContext.extractSource(attrEle));
-
+		// 解析子标签中的属性
 		for (Element methodEle : methods) {
+			// 解析属性 name
 			String name = methodEle.getAttribute(METHOD_NAME_ATTRIBUTE);
 			TypedStringValue nameHolder = new TypedStringValue(name);
 			nameHolder.setSource(parserContext.extractSource(methodEle));
-
+			// 解析属性 propagation、isolation、timeout、read-only
 			RuleBasedTransactionAttribute attribute = new RuleBasedTransactionAttribute();
 			String propagation = methodEle.getAttribute(PROPAGATION_ATTRIBUTE);
 			String isolation = methodEle.getAttribute(ISOLATION_ATTRIBUTE);
 			String timeout = methodEle.getAttribute(TIMEOUT_ATTRIBUTE);
 			String readOnly = methodEle.getAttribute(READ_ONLY_ATTRIBUTE);
+			// 将属性值设置到 attribute
 			if (StringUtils.hasText(propagation)) {
 				attribute.setPropagationBehaviorName(RuleBasedTransactionAttribute.PREFIX_PROPAGATION + propagation);
 			}
@@ -126,12 +125,13 @@ class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 			if (StringUtils.hasText(readOnly)) {
 				attribute.setReadOnly(Boolean.valueOf(methodEle.getAttribute(READ_ONLY_ATTRIBUTE)));
 			}
-
+			// 解析属性，回滚规则 rollback-for
 			List<RollbackRuleAttribute> rollbackRules = new LinkedList<>();
 			if (methodEle.hasAttribute(ROLLBACK_FOR_ATTRIBUTE)) {
 				String rollbackForValue = methodEle.getAttribute(ROLLBACK_FOR_ATTRIBUTE);
 				addRollbackRuleAttributesTo(rollbackRules,rollbackForValue);
 			}
+			// 解析属性，不回滚规则 no-rollback-for
 			if (methodEle.hasAttribute(NO_ROLLBACK_FOR_ATTRIBUTE)) {
 				String noRollbackForValue = methodEle.getAttribute(NO_ROLLBACK_FOR_ATTRIBUTE);
 				addNoRollbackRuleAttributesTo(rollbackRules,noRollbackForValue);
@@ -140,7 +140,8 @@ class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
 			transactionAttributeMap.put(nameHolder, attribute);
 		}
-
+		// 与 AnnotationTransactionAttributeSource 功能类似，只不过前者是注解方式的支持。
+		// AnnotationTransactionAttributeSource 是名称匹配的支持。
 		RootBeanDefinition attributeSourceDefinition = new RootBeanDefinition(NameMatchTransactionAttributeSource.class);
 		attributeSourceDefinition.setSource(parserContext.extractSource(attrEle));
 		attributeSourceDefinition.getPropertyValues().add("nameMap", transactionAttributeMap);
