@@ -55,5 +55,4 @@ public class GlobalTransactionConfig {
 		ds.setDriverClassName("com.mysql.jdbc.Driver");
 		return ds;
 	}
-
 }
