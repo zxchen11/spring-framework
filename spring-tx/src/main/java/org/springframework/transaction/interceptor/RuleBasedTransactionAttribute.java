@@ -153,7 +153,7 @@ public class RuleBasedTransactionAttribute extends DefaultTransactionAttribute i
 			logger.trace("Winning rollback rule is: " + winner);
 		}
 
-		// 如果没有配置回滚异常或不回滚异常，则会走默认的。默认回滚运行时异常集错误：
+		// 如果没有配置回滚异常或不回滚异常，则会走默认的。默认回滚运行时异常及Error：
 		// (ex instanceof RuntimeException || ex instanceof Error);
 		// User superclass behavior (rollback on unchecked) if no rule matches.
 		if (winner == null) {

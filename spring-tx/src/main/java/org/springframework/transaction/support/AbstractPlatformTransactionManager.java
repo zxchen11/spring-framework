@@ -727,14 +727,16 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			if (defStatus.isDebug()) {
 				logger.debug("Transactional code has requested rollback");
 			}
+			// 回滚事务
 			processRollback(defStatus, false);
 			return;
 		}
-
+		// 判断是否仅回滚，主要是看connectionHolder是否设置了仅回滚。
 		if (!shouldCommitOnGlobalRollbackOnly() && defStatus.isGlobalRollbackOnly()) {
 			if (defStatus.isDebug()) {
 				logger.debug("Global transaction is marked as rollback-only but transactional code requested commit");
 			}
+			// 回滚事务
 			processRollback(defStatus, true);
 			return;
 		}
@@ -754,11 +756,16 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
 			try {
 				boolean unexpectedRollback = false;
+				// 预提交，这是一个钩子方法，点进去可以看到是一个空方法。
 				prepareForCommit(status);
+				// 事务同步回调接口TransactionSynchronization.beforeCommit()的调用。
 				triggerBeforeCommit(status);
+				// 事务同步回调接口TransactionSynchronization.beforeCompletion()的调用。
 				triggerBeforeCompletion(status);
 				beforeCompletionInvoked = true;
 
+				// 是否有回滚点（保存点），如果是设置了回滚点，则仅仅吧回滚点抹除即可。真正的提交是在最外层事务提交做的。
+				// 这也是NESTED传播行为，在外围方法事务异常时，所有嵌套事务全部回滚的原因所在。
 				if (status.hasSavepoint()) {
 					if (status.isDebug()) {
 						logger.debug("Releasing transaction savepoint");

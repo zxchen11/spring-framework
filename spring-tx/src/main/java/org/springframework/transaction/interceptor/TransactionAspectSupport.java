@@ -557,6 +557,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			if (logger.isTraceEnabled()) {
 				logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() + "]");
 			}
+			// 使用事务管理器，提交事务。
 			txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
 		}
 	}
@@ -594,6 +595,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				// We don't roll back on this exception.
 				// Will still roll back if TransactionStatus.isRollbackOnly() is true.
 				try {
+					// 如果抛出的异常，与回滚的异常定义不匹配，则提交事务。也就是说，抛出异常了，也不一定回滚。它存在一个异常类型匹配。
 					txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
 				}
 				catch (TransactionSystemException ex2) {
