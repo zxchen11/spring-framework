@@ -22,9 +22,9 @@ public interface PropagationUserService {
 
 	void addNotSupportedException(PropagationUser user);
 
-	void addMadatory(PropagationUser user);
+	void addMandatory(PropagationUser user);
 
-	void addMadatoryException(PropagationUser user);
+	void addMandatoryException(PropagationUser user);
 
 	void addNever(PropagationUser user);
 

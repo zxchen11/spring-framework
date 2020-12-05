@@ -67,13 +67,13 @@ public class PropagationUserServiceImpl implements PropagationUserService {
 
 	@Transactional(propagation = Propagation.MANDATORY, rollbackFor = Exception.class)
 	@Override
-	public void addMadatory(PropagationUser user) {
+	public void addMandatory(PropagationUser user) {
 		userDao.insertSelective(user);
 	}
 
 	@Transactional(propagation = Propagation.MANDATORY, rollbackFor = Exception.class)
 	@Override
-	public void addMadatoryException(PropagationUser user) {
+	public void addMandatoryException(PropagationUser user) {
 		userDao.insertSelective(user);
 		throw new RuntimeException();
 	}

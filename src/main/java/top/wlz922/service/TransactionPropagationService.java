@@ -5,18 +5,83 @@ package top.wlz922.service;
  */
 public interface TransactionPropagationService {
 	/**
-	 * 外围方法未开启事务
+	 * REQUIRED
 	 */
 	void noTransactionExceptionRequiredRequired();
 
 	void noTransactionRequiredRequiredException();
 
-	/**
-	 * 外围方法开启事务
-	 */
 	void transactionExceptionRequiredRequired();
 
 	void transactionRequiredRequiredException();
 
 	void transactionRequiredRequiredCatchException();
+
+	/**
+	 * SUPPORTS
+	 */
+	void noTransactionExceptionSupportsSupports();
+
+	void noTransactionSupportsSupportsException();
+
+	void transactionExceptionSupportsSupports();
+
+	void transactionSupportsSupportsException();
+
+	void transactionSupportsSupportsCatchException();
+
+	/**
+	 * MANDATORY
+	 */
+	void noTransactionMandatoryMandatory();
+
+	void transactionExceptionMandatoryMandatory();
+
+	void transactionMandatoryMandatoryCatchException();
+
+	/**
+	 * REQUIRES_NEW
+	 */
+	void noTransactionExceptionRequiresNewRequiresNew();
+
+	void noTransactionRequiresNewRequiresNewException();
+
+	void transactionExceptionRequiresNewRequiresNew();
+
+	void transactionRequiresNewRequiresNewException();
+
+	void transactionRequiresNewRequiresNewCatchException();
+
+	/**
+	 * NOT_SUPPORTED
+	 */
+	void noTransactionExceptionNotSupportedNotSupported();
+
+	void noTransactionNotSupportedNotSupportedException();
+
+	void transactionExceptionNotSupportedNotSupported();
+
+	void transactionNotSupportedNotSupportedException();
+
+	/**
+	 * NEVER
+	 */
+	void noTransactionExceptionNeverNever();
+
+	void noTransactionNeverNeverException();
+
+	void transactionNeverNever();
+
+	/**
+	 * NESTED
+	 */
+	void noTransactionExceptionNestedNested();
+
+	void noTransactionNestedNestedException();
+
+	void transactionExceptionNestedNested();
+
+	void transactionNestedNestedException();
+
+	void transactionNestedNestedCatchException();
 }
