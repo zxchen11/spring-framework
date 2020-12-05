@@ -103,4 +103,14 @@ public class PropagationUserServiceImpl implements PropagationUserService {
 		userDao.insertSelective(user);
 		throw new RuntimeException();
 	}
+
+	@Transactional
+	@Override
+	public void sqlException() {
+		try {
+			userDao.insertException();
+		} catch (Exception ignored) {
+
+		}
+	}
 }

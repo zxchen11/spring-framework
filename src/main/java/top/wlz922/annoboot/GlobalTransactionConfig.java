@@ -53,6 +53,7 @@ public class GlobalTransactionConfig {
 		ds.setPassword("123456");
 		ds.setUrl("jdbc:mysql://127.0.0.1:3306/test?serverTimezone=Asia/Shanghai");
 		ds.setDriverClassName("com.mysql.jdbc.Driver");
+		ds.setMaxActive(1);
 		return ds;
 	}
 }

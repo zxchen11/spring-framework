@@ -49,4 +49,8 @@
     set `name` = #{name,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <insert id="insertException">
+    insert into propagation_user (`name`) values('helloworldjjdskfjsfjjsdfj')
+  </insert>
 </mapper>

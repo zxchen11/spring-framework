@@ -33,6 +33,7 @@ public class TransactionPropagationServiceImpl implements TransactionPropagation
 	public void transactionExceptionRequiredRequired() {
 		userService.addRequired(new PropagationUser("张三"));
 		userService.addRequired(new PropagationUser("李四"));
+		// userService.sqlException();
 		throw new RuntimeException();
 	}
 

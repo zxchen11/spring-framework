@@ -14,4 +14,6 @@ public interface PropagationUserDao {
     int updateByPrimaryKeySelective(PropagationUser record);
 
     int updateByPrimaryKey(PropagationUser record);
+
+	String insertException();
 }
