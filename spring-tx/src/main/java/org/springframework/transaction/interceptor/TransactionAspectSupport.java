@@ -574,7 +574,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() +
 						"] after exception: " + ex);
 			}
-			// 判断失误属性不为空并且满足回滚规则，就进行回滚，否则进行事务提交
+			// 判断事务属性不为空并且满足回滚规则，就进行回滚，否则进行事务提交
 			if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
 				try {
 					// TODO 重点：具体的回滚代码
