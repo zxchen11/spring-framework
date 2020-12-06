@@ -387,6 +387,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			}
 		}
 		else {
+			// 以非事务方式运行 NEVER SUPPORTS NOT_SUPPORTED，在外围未开启事务时，会走这里。
 			// Create "empty" transaction: no actual transaction, but potentially synchronization.
 			if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT && logger.isWarnEnabled()) {
 				logger.warn("Custom isolation level specified but no actual transaction initiated; " +
@@ -758,14 +759,16 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				boolean unexpectedRollback = false;
 				// 预提交，这是一个钩子方法，点进去可以看到是一个空方法。
 				prepareForCommit(status);
+				//  TransactionSynchronization的扩展点可在事务方法中向TransactionSynchronizationManager注入回调。不同的方法回调时机不一样。
+				// 也可以使用 @TransactionalEventListener，其原理也是注入 TransactionSynchronization 回调。
 				// 事务同步回调接口TransactionSynchronization.beforeCommit()的调用。
 				triggerBeforeCommit(status);
 				// 事务同步回调接口TransactionSynchronization.beforeCompletion()的调用。
 				triggerBeforeCompletion(status);
 				beforeCompletionInvoked = true;
 
-				// 是否有回滚点（保存点），如果是设置了回滚点，则仅仅吧回滚点抹除即可。真正的提交是在最外层事务提交做的。
-				// 这也是NESTED传播行为，在外围方法事务异常时，所有嵌套事务全部回滚的原因所在。
+				// TODO 是否有回滚点（保存点），如果是设置了回滚点，则仅仅吧回滚点抹除即可。真正的提交是在最外层事务提交做的。
+				//  这也是NESTED传播行为，在外围方法事务异常时，所有嵌套事务全部回滚的原因所在。
 				if (status.hasSavepoint()) {
 					if (status.isDebug()) {
 						logger.debug("Releasing transaction savepoint");
@@ -794,6 +797,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			}
 			catch (UnexpectedRollbackException ex) {
 				// can only be caused by doCommit
+				// TransactionSynchronization 扩展
 				triggerAfterCompletion(status, TransactionSynchronization.STATUS_ROLLED_BACK);
 				throw ex;
 			}
@@ -818,9 +822,11 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			// Trigger afterCommit callbacks, with an exception thrown there
 			// propagated to callers but the transaction still considered as committed.
 			try {
+				// TransactionSynchronization扩展
 				triggerAfterCommit(status);
 			}
 			finally {
+				// TransactionSynchronization 扩展
 				triggerAfterCompletion(status, TransactionSynchronization.STATUS_COMMITTED);
 			}
 
@@ -879,7 +885,8 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 					doRollback(status);
 				}
 				else {
-					// 如果是加入的已有事务，则将事务状态设置为只回滚。rollbackOnly=true
+					// 如果是加入的已有事务，则将事务状态设置为仅回滚 rollbackOnly=true，最终返回到事务的起点时，是否向外抛出异常都会回滚。
+					// 所以在 REQUIRED 传播行为中，任何一个加入事务的方法异常，都会触发回滚。
 					// Participating in larger transaction
 					if (status.hasTransaction()) {
 						if (status.isLocalRollbackOnly() || isGlobalRollbackOnParticipationFailure()) {
@@ -904,6 +911,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				}
 			}
 			catch (RuntimeException | Error ex) {
+				// TransactionSynchronization 扩展点
 				triggerAfterCompletion(status, TransactionSynchronization.STATUS_UNKNOWN);
 				throw ex;
 			}

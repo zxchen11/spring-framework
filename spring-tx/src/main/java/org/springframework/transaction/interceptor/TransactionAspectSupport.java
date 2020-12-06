@@ -278,7 +278,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	protected Object invokeWithinTransaction(Method method, @Nullable Class<?> targetClass,
 			final InvocationCallback invocation) throws Throwable {
 		/*
-		 * TODO 其中事务传播行为的特点（这些特点，仔细分析代码是可以看出来的。相对比较烧脑。一般先了解特点，后面才会看源码）：
+		 * TODO 其中事务传播行为的特点（这些特点，仔细分析代码是可以看出来的。一般先了解特点，带着问题再看源码会容易些）：
 		 *  PROPAGATION_REQUIRED 如果当前存在事务，假如当前事务。如果不存在事务，新建事务。使用频率高
 		 *  PROPAGATION_REQUIRES_NEW 如果当前存在事务，则挂起当前事务，新建一个事务。如果不存在事务，新建一个事务。使用频率高
 		 *  PROPAGATION_NESTED 如果当前存在事务，则在嵌套事务内执行。如果当前不存在事务，则和PROPAGATION_REQUIRED一样新建事务。使用频率高
