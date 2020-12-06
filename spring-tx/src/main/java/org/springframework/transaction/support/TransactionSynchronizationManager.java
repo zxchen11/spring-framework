@@ -287,7 +287,7 @@ public abstract class TransactionSynchronizationManager {
 	 */
 	public static void registerSynchronization(TransactionSynchronization synchronization)
 			throws IllegalStateException {
-
+		// 注册事务事件，后面再各个节点会调用到事件中的回调方法
 		Assert.notNull(synchronization, "TransactionSynchronization must not be null");
 		if (!isSynchronizationActive()) {
 			throw new IllegalStateException("Transaction synchronization is not active");

@@ -16,17 +16,16 @@
 
 package org.springframework.context.event;
 
-import java.util.concurrent.Executor;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ErrorHandler;
+
+import java.util.concurrent.Executor;
 
 /**
  * Simple implementation of the {@link ApplicationEventMulticaster} interface.
@@ -136,6 +135,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 				executor.execute(() -> invokeListener(listener, event));
 			}
 			else {
+				// 发布事件
 				invokeListener(listener, event);
 			}
 		}
@@ -169,6 +169,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private void doInvokeListener(ApplicationListener listener, ApplicationEvent event) {
 		try {
+			// 这里向 TransactionSynchronizationManager 注册了事件
 			listener.onApplicationEvent(event);
 		}
 		catch (ClassCastException ex) {

@@ -348,8 +348,9 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			// TODO 如果当前已存在事务，会走到此方法逻辑进行处理。
 			return handleExistingTransaction(definition, transaction, debugEnabled);
 		}
+		// TODO 以下是针对前一个方法未开启事务的情况的处理。
 
-		// 检测事务是否超时
+		// 检测事务的超时时间设置是否正确
 		// Check definition settings for new transaction.
 		if (definition.getTimeout() < TransactionDefinition.TIMEOUT_DEFAULT) {
 			throw new InvalidTimeoutException("Invalid transaction timeout", definition.getTimeout());

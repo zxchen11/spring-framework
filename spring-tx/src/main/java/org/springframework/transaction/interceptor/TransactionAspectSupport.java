@@ -279,8 +279,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			final InvocationCallback invocation) throws Throwable {
 		/*
 		 * TODO 其中事务传播行为的特点（这些特点，仔细分析代码是可以看出来的。一般先了解特点，带着问题再看源码会容易些）：
-		 *  PROPAGATION_REQUIRED 如果当前存在事务，假如当前事务。如果不存在事务，新建事务。使用频率高
-		 *  PROPAGATION_REQUIRES_NEW 如果当前存在事务，则挂起当前事务，新建一个事务。如果不存在事务，新建一个事务。使用频率高
+		 *  PROPAGATION_REQUIRED 如果当前存在事务，假如当前事务。如果不存在事务，新建事务。
+		 *  PROPAGATION_REQUIRES_NEW 如果当前存在事务，则挂起当前事务，新建一个事务。如果不存在事务，新建一个事务。
 		 *  PROPAGATION_NESTED 如果当前存在事务，则在嵌套事务内执行。如果当前不存在事务，则和PROPAGATION_REQUIRED一样新建事务。使用频率高
 		 *      特点：外围事务回滚，嵌套事务全部回滚。嵌套事务回滚，如果在外围中捕获了，则仅仅回滚嵌套事务。
 		 *  PROPAGATION_MANDATORY 以事务方式运行，如果当前不存在事务，则抛出异常
@@ -521,7 +521,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	protected TransactionInfo prepareTransactionInfo(@Nullable PlatformTransactionManager tm,
 			@Nullable TransactionAttribute txAttr, String joinpointIdentification,
 			@Nullable TransactionStatus status) {
-
+		// 创建事务信息对象，如果方法是具有事务属性的，将事务状态对象封装到事务信息对象中。
 		TransactionInfo txInfo = new TransactionInfo(tm, txAttr, joinpointIdentification);
 		if (txAttr != null) {
 			// We need a transaction for this method...
@@ -539,7 +539,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 						"]: This method isn't transactional.");
 			}
 		}
-
+		// 将事务信息对象绑定到当前线程。这时会将旧的事务信息对象值，暂存到另一个变量 oldTransactionInfo 中。
 		// We always bind the TransactionInfo to the thread, even if we didn't create
 		// a new transaction here. This guarantees that the TransactionInfo stack
 		// will be managed correctly even if no transaction was created by this aspect.

@@ -366,6 +366,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			this.earlyApplicationEvents.add(applicationEvent);
 		}
 		else {
+			// 发布事件
 			getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
 		}
 
