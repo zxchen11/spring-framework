@@ -71,21 +71,29 @@ public abstract class TransactionSynchronizationManager {
 
 	private static final Log logger = LogFactory.getLog(TransactionSynchronizationManager.class);
 
+	/** 当前线程中正在使用的 ConnectionHolder，键值是dataSource */
 	private static final ThreadLocal<Map<Object, Object>> resources =
 			new NamedThreadLocal<>("Transactional resources");
 
+	/**
+	 * TODO 正在执行的事务中的扩展点TransactionSynchronization集合，它定义了一些事务提交前、后、事务挂起前操作。
+	 *  释放连接的操作就是通过 afterCompletion() 来实现的。
+	 *  可通过业务方法中使用TransactionSynchronizationManager.registerSynchronization()来手动定义事务提交前、后的扩展操作。
+	 *  也可以通过@TransactionalEventListener来定义事务回调事件，其实这个注解底层也是使用的
+	 *  TransactionSynchronizationManager.registerSynchronization()，与手动定义并无本质区别。
+	 */
 	private static final ThreadLocal<Set<TransactionSynchronization>> synchronizations =
 			new NamedThreadLocal<>("Transaction synchronizations");
-
+	/** 当前事务的名称，如果配置中指定了名称，会使用指定的名称，不指定会有默认名称，默认是方法的全路径名 */
 	private static final ThreadLocal<String> currentTransactionName =
 			new NamedThreadLocal<>("Current transaction name");
-
+	/** 当前事务事务只读 */
 	private static final ThreadLocal<Boolean> currentTransactionReadOnly =
 			new NamedThreadLocal<>("Current transaction read-only status");
-
+	/** 当前事务的隔离级别 */
 	private static final ThreadLocal<Integer> currentTransactionIsolationLevel =
 			new NamedThreadLocal<>("Current transaction isolation level");
-
+	/** 当前事务是否处于活跃状态 */
 	private static final ThreadLocal<Boolean> actualTransactionActive =
 			new NamedThreadLocal<>("Actual transaction active");
 

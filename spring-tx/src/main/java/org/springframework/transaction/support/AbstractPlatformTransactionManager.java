@@ -603,6 +603,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 					// TODO 重点：如果存在事务，则挂起事务，其实就是从ThreadLocal变量中解绑连接。
 					suspendedResources = doSuspend(transaction);
 				}
+				// 清楚TransactionSynchronizationManager中的当前事务的一些信息。将旧的事务对象信息封装到挂起对象中，最终会绑定到当前事务对象。
 				String name = TransactionSynchronizationManager.getCurrentTransactionName();
 				TransactionSynchronizationManager.setCurrentTransactionName(null);
 				boolean readOnly = TransactionSynchronizationManager.isCurrentTransactionReadOnly();
@@ -616,6 +617,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 						suspendedResources, suspendedSynchronizations, name, readOnly, isolationLevel, wasActive);
 			}
 			catch (RuntimeException | Error ex) {
+				// 挂起失败，调用TransactionSynchronization.resume()
 				// doSuspend failed - original transaction is still active...
 				doResumeSynchronization(suspendedSynchronizations);
 				throw ex;
