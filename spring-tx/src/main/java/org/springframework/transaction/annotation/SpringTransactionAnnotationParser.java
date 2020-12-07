@@ -62,7 +62,8 @@ public class SpringTransactionAnnotationParser implements TransactionAnnotationP
 	protected TransactionAttribute parseTransactionAnnotation(AnnotationAttributes attributes) {
 		// TODO 此方法主要做对象类型转换，将AnnotationAttributes中的属性赋值到RuleBasedTransactionAttribute中，返回。
 		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-
+		// 解析 @Transactional 中的属性：propagation、isolation、timeout、readOnly、value。
+		// 解析后将其封装到 RuleBasedTransactionAttribute 对象中。
 		Propagation propagation = attributes.getEnum("propagation");
 		rbta.setPropagationBehavior(propagation.value());
 		Isolation isolation = attributes.getEnum("isolation");

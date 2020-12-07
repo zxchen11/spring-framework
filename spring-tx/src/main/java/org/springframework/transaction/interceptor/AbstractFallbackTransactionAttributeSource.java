@@ -94,7 +94,7 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 			return null;
 		}
 
-		// 先从缓存中拿
+		// 先从缓存中拿。如果一个方法的事务注解信息被获取过，就会将其缓存到一个并发安全的map中。后面再获取就从这个缓存中获取。
 		// First, see if we have a cached value.
 		Object cacheKey = getCacheKey(method, targetClass);
 		TransactionAttribute cached = this.attributeCache.get(cacheKey);
@@ -113,7 +113,7 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 			// We need to work it out.
 			TransactionAttribute txAttr = computeTransactionAttribute(method, targetClass);
 			// Put it in the cache.
-			if (txAttr == null) {
+			if (txAttr == null) {// 放入缓存
 				this.attributeCache.put(cacheKey, NULL_TRANSACTION_ATTRIBUTE);
 			}
 			else {
@@ -160,19 +160,19 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 		// If the target class is null, the method will be unchanged.
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 
-		// TODO 重点：查找事务属性
+		// TODO 重点：查找事务属性，首先从目标方法上查找
 		// First try is the method in the target class.
 		TransactionAttribute txAttr = findTransactionAttribute(specificMethod);
 		if (txAttr != null) {
 			return txAttr;
 		}
-
+		// 如果目标方法上查找不到，从目标类上查找。
 		// Second try is the transaction attribute on the target class.
 		txAttr = findTransactionAttribute(specificMethod.getDeclaringClass());
 		if (txAttr != null && ClassUtils.isUserLevelMethod(method)) {
 			return txAttr;
 		}
-
+		// 如果方法上找不到，到接口方法、接口上找对应注解。
 		if (specificMethod != method) {
 			// Fallback is to look at the original method.
 			txAttr = findTransactionAttribute(method);
