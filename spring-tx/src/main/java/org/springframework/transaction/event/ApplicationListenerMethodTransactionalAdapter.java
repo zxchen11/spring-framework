@@ -126,6 +126,7 @@ class ApplicationListenerMethodTransactionalAdapter extends ApplicationListenerM
 		}
 
 		protected void processEvent() {
+			// 总是会调用到这里，这里其实就是我们加了@TransactionalEventListener注解的方法调用
 			this.listener.processEvent(this.event);
 		}
 	}
