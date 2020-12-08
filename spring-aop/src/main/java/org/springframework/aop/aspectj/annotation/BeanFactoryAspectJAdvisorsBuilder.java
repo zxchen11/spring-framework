@@ -88,6 +88,8 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 				if (aspectNames == null) {
 					List<Advisor> advisors = new ArrayList<>();
 					aspectNames = new ArrayList<>();
+					// 拿到所有的beanNames，注意，这里包含了父容器中的beanNames，所以，如果父容器中配置了切面，
+					// 刚好这个切面扫描范围包含子容器中的类时，会将这个切面继承过来。
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 							this.beanFactory, Object.class, true, false);
 					for (String beanName : beanNames) {
