@@ -29,4 +29,9 @@ public class TransactionSourceExtentionServiceTest {
 	public void addUserRequiredWithApplicationEventPublisherTest() {
 		service.addUserRequiredWithApplicationEventPublisher(new PropagationUser("Eddie"));
 	}
+
+	@Test
+	public void addUserRequiredWithApplicationEventPublisher2Test() {
+		service.addUserRequiredWithApplicationEventPublisher2(new PropagationUser("Eddie"));
+	}
 }

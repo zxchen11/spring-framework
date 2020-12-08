@@ -12,6 +12,6 @@ public class UserListener {
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void onUserAddEvent(AbstractCustomApplicationEvent<?> event) {
 		event.process();
-		log.info("用户新增成功，发送异步通知吧");
+		log.info("用户新增成功，发送通知消息");
 	}
 }
