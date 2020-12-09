@@ -16,15 +16,6 @@
 
 package org.springframework.web.servlet.support;
 
-import java.util.EnumSet;
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
-import javax.servlet.FilterRegistration.Dynamic;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
-
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.core.Conventions;
 import org.springframework.lang.Nullable;
@@ -34,6 +25,10 @@ import org.springframework.web.context.AbstractContextLoaderInitializer;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.FrameworkServlet;
+
+import javax.servlet.*;
+import javax.servlet.FilterRegistration.Dynamic;
+import java.util.EnumSet;
 
 /**
  * Base class for {@link org.springframework.web.WebApplicationInitializer}
@@ -59,6 +54,8 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
+		// 创建 RootApplicationContext，也就是spring父容器。
+		// 后面的流程中，设置子容器的父容器时，就是通过servletContext作为桥梁，进行获取的。父容器实例化后，会注册到servletContext。
 		super.onStartup(servletContext);
 		registerDispatcherServlet(servletContext);
 	}
@@ -80,17 +77,20 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 
 		WebApplicationContext servletAppContext = createServletApplicationContext();
 		Assert.notNull(servletAppContext, "createServletApplicationContext() must not return null");
-
+		// 创建 DispatcherServlet。
 		FrameworkServlet dispatcherServlet = createDispatcherServlet(servletAppContext);
 		Assert.notNull(dispatcherServlet, "createDispatcherServlet(WebApplicationContext) must not return null");
 		dispatcherServlet.setContextInitializers(getServletApplicationContextInitializers());
-
+		// 将servlet添加到servletContext中
 		ServletRegistration.Dynamic registration = servletContext.addServlet(servletName, dispatcherServlet);
 		if (registration == null) {
 			throw new IllegalStateException("Failed to register servlet with name '" + servletName + "'. " +
 					"Check if there is another servlet registered under the same name.");
 		}
 
+		// 如果该元素的值为负数或者没有设置，则容器会当Servlet被请求时再加载。
+		// 如果值为正整数或者0时，表示容器在应用启动时就加载并初始化这个servlet，
+		// 值越小，servlet的优先级越高，就越先被加载
 		registration.setLoadOnStartup(1);
 		registration.addMapping(getServletMappings());
 		registration.setAsyncSupported(isAsyncSupported());

@@ -568,6 +568,8 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 				if (!cwac.isActive()) {
 					// The context has not yet been refreshed -> provide services such as
 					// setting the parent context, setting the application context id, etc
+					// 设置父容器，这个父容器时从servletContext中获取的。
+					// 父容器是在 ContextLoader.initWebApplicationContext()，调用完refresh()后设置到servletContext中的。
 					if (cwac.getParent() == null) {
 						// The context instance was injected without an explicit parent -> set
 						// the root application context (if any; may be null) as the parent

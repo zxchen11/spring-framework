@@ -287,9 +287,11 @@ public class ContextLoader {
 						ApplicationContext parent = loadParentContext(servletContext);
 						cwac.setParent(parent);
 					}
+					// TODO 调用了 refresh()
 					configureAndRefreshWebApplicationContext(cwac, servletContext);
 				}
 			}
+			// 将WebApplicationContext添加到servletContext中，后面子容器设置父容器时，就会通过这个键值进行获取。
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
 
 			ClassLoader ccl = Thread.currentThread().getContextClassLoader();

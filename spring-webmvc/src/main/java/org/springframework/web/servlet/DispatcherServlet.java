@@ -488,17 +488,25 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
+		// 初始化MultipartResolver，用于处理文件上传服务，如果有文件上传，
+		// 那么就会将当前的HttpServletRequest包装成DefaultMultipartHttpServletRequest，
+		// 并且将每个上传的内容封装成CommonsMultipartFile对象。需要在dispatcherServlet-servlet.xml中配置文件上传解析器。
 		initMultipartResolver(context);
+		// 用于处理应用的国际化问题，本地化解析策略。
 		initLocaleResolver(context);
+		// 用于定义一个主题。
 		initThemeResolver(context);
 		// TODO handlerMappings的初始化
 		initHandlerMappings(context);
 		// TODO handlerAdapters的初始化
 		initHandlerAdapters(context);
-		// TODO 异常处理器的初始化
+		// TODO 异常处理器的初始化，当Handler处理出错后，会通过此将错误日志记录在log文件中，默认实现类是SimpleMappingExceptionResolver。
 		initHandlerExceptionResolvers(context);
+		// 将指定的ViewName按照定义的RequestToViewNameTranslators替换成想要的格式。
 		initRequestToViewNameTranslator(context);
+		// 用于将View解析成页面。
 		initViewResolvers(context);
+		// 用于生成FlashMap管理器。
 		initFlashMapManager(context);
 	}
 
