@@ -18,6 +18,7 @@ import java.util.List;
 /**
  * @author Eddie
  */
+// 这个注解中，导入了激活mvc功能的类。
 @EnableWebMvc
 @ComponentScan(value = {"top.wlz922.controller", "top.wlz922.interceptor", "top.wlz922.resolver"}
 //		, includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Controller.class})}
