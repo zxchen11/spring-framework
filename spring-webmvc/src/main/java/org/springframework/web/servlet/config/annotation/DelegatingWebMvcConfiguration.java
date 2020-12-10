@@ -81,6 +81,7 @@ public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
 
 	@Override
 	protected void addInterceptors(InterceptorRegistry registry) {
+		// 遍历，依次进行添加操作。
 		this.configurers.addInterceptors(registry);
 	}
 

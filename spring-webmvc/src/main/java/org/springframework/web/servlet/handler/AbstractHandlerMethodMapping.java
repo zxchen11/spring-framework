@@ -201,6 +201,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		// 获取ApplicationContext容器中所有的beanName，循环判断不是以scopedTarget.的beanName执行候选操作。
 		for (String beanName : getCandidateBeanNames()) {
 			if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {
+				// TODO 执行操作。
 				processCandidateBean(beanName);
 			}
 		}
@@ -274,7 +275,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			}
 			// TODO 注册处理方法
 			methods.forEach((method, mapping) -> {
+				// 获取到对应的方法
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
+				// 注册 HandlerMethod
 				registerHandlerMethod(handler, invocableMethod, mapping);
 			});
 		}
@@ -589,10 +592,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				// 封装HanlderMethod
 				HandlerMethod handlerMethod = createHandlerMethod(handler, method);
 				assertUniqueMethodMapping(handlerMethod, mapping);
-				// 封装 RequestMappingInfo - HandlerMethod 映射关系
+				// TODO 封装 RequestMappingInfo - HandlerMethod 映射关系
 				this.mappingLookup.put(mapping, handlerMethod);
-
-				// 获取到RequestMappingInfo中的 paths（用于匹配请求路径的url），遍历，依次建立 url - RequestMappingInfo的映射关系。
+				// url - mapping 映射关系，mapping-handlerMethod的映射关系。这两个map很重要。请求url匹配到处理方法，就是通过这两个关系映射来匹配的。
+				// TODO 获取到RequestMappingInfo中的 paths（用于匹配请求路径的url），遍历，依次建立 url - RequestMappingInfo的映射关系。
 				List<String> directUrls = getDirectUrls(mapping);
 				for (String url : directUrls) {
 					this.urlLookup.add(url, mapping);

@@ -56,6 +56,7 @@ public abstract class AbstractContextLoaderInitializer implements WebApplication
 	 * @param servletContext the servlet context to register the listener against
 	 */
 	protected void registerContextLoaderListener(ServletContext servletContext) {
+		// 创建 RootApplicationContext，这里面会有一个回调 getRootConfigClasses。这个回调中获取了实现类方法中返回的配置类。
 		WebApplicationContext rootAppContext = createRootApplicationContext();
 		if (rootAppContext != null) {
 			// 创建监听器，监听器中封装了ApplicationContext，将这个监听器封装到servletContext中
