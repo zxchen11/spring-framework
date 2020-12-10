@@ -92,6 +92,7 @@
     <!--<mvc:default-servlet-handler default-servlet-name="default"/>-->
 
     <!--<bean id="userInterceptor" class="com.zhuguang.jack.handlerInterceptor.UserInterceptor"></bean>-->
+    <bean id="customHandlerInterceptor" class="top.wlz922.interceptor.CustomHandlerInterceptor"></bean>
     <mvc:interceptors>
         <!--
            /**的意思是所有文件夹及里面的子文件夹
