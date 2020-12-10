@@ -75,6 +75,7 @@ public final class MethodIntrospector {
 				T result = metadataLookup.inspect(specificMethod);
 				if (result != null) {
 					Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
+					// inspect() 调用到了外层的匿名对象
 					if (bridgedMethod == specificMethod || metadataLookup.inspect(bridgedMethod) == null) {
 						// 方法-RequestMappingInfo映射
 						methodMap.put(specificMethod, result);

@@ -187,6 +187,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Override
 	public void afterPropertiesSet() {
+		// 初始化 RequestMappingInfoHandlerMapping，这里完成了 MVC 相关注解支持的扫描及封装。
 		initHandlerMethods();
 	}
 
@@ -240,7 +241,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 			}
 		}
-		// 判断类上包含Controller或者RequestMapping注解
+		// TODO 判断类上包含Controller或者RequestMapping注解
 		if (beanType != null && isHandler(beanType)) {
 			detectHandlerMethods(beanName);
 		}
@@ -271,7 +272,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			if (logger.isTraceEnabled()) {
 				logger.trace(formatMappings(userType, methods));
 			}
-			// 注册处理方法
+			// TODO 注册处理方法
 			methods.forEach((method, mapping) -> {
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
 				registerHandlerMethod(handler, invocableMethod, mapping);
@@ -320,6 +321,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		HandlerMethod handlerMethod;
 		if (handler instanceof String) {
 			String beanName = (String) handler;
+			// 创建 handlerMethod，这里封装的是 beanName，beanFactory，以及method。
+			// 通过 beanName、beanFactory 可以获得bean实例，进而反射调用 method。
 			handlerMethod = new HandlerMethod(beanName,
 					obtainApplicationContext().getAutowireCapableBeanFactory(), method);
 		}
@@ -360,6 +363,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
 		this.mappingRegistry.acquireReadLock();
 		try {
+			// 根据路径获取到 HandlerMapping，再根据 HandlerMapping 获取到 HandlerMethod
 			HandlerMethod handlerMethod = lookupHandlerMethod(lookupPath, request);
 			return (handlerMethod != null ? handlerMethod.createWithResolvedBean() : null);
 		}
@@ -380,6 +384,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	@Nullable
 	protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {
 		List<Match> matches = new ArrayList<>();
+		// 获取映射URL列表
 		List<T> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);
 		if (directPathMatches != null) {
 			addMatchingMappings(directPathMatches, matches, request);
@@ -409,6 +414,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 							"Ambiguous handler methods mapped for '" + uri + "': {" + m1 + ", " + m2 + "}");
 				}
 			}
+			// 返回最佳匹配
 			request.setAttribute(BEST_MATCHING_HANDLER_ATTRIBUTE, bestMatch.handlerMethod);
 			handleMatch(bestMatch.mapping, lookupPath, request);
 			return bestMatch.handlerMethod;
@@ -583,8 +589,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				// 封装HanlderMethod
 				HandlerMethod handlerMethod = createHandlerMethod(handler, method);
 				assertUniqueMethodMapping(handlerMethod, mapping);
+				// 封装 RequestMappingInfo - HandlerMethod 映射关系
 				this.mappingLookup.put(mapping, handlerMethod);
 
+				// 获取到RequestMappingInfo中的 paths（用于匹配请求路径的url），遍历，依次建立 url - RequestMappingInfo的映射关系。
 				List<String> directUrls = getDirectUrls(mapping);
 				for (String url : directUrls) {
 					this.urlLookup.add(url, mapping);

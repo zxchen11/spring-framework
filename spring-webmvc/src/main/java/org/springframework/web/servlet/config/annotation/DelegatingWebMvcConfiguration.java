@@ -16,8 +16,6 @@
 
 package org.springframework.web.servlet.config.annotation;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -30,6 +28,8 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import java.util.List;
+
 /**
  * A subclass of {@code WebMvcConfigurationSupport} that detects and delegates
  * to all beans of type {@link WebMvcConfigurer} allowing them to customize the
@@ -41,10 +41,11 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
  */
 @Configuration
 public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
-
+	// 这个类合成了容器中所有实例化的 WebMvcConfigurer
 	private final WebMvcConfigurerComposite configurers = new WebMvcConfigurerComposite();
 
-
+	/** 将容器中所有实例化的 WebMvcConfigurer 根据类型注入到方法参数，将其封装起来，之后所有的配置方法中，
+	 * 会遍历这里搜集到的所有的实例，依次进行配置。 */
 	@Autowired(required = false)
 	public void setConfigurers(List<WebMvcConfigurer> configurers) {
 		if (!CollectionUtils.isEmpty(configurers)) {

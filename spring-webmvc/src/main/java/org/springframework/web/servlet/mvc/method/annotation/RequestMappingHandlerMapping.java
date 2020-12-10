@@ -218,8 +218,10 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
 		RequestMappingInfo info = createRequestMappingInfo(method);
 		if (info != null) {
+			// TODO 创建 RequestMappingInfo，这里完成了 @RequestMappingInfo 的扫描及封装操作。
 			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
 			if (typeInfo != null) {
+				// 将类上的 @RequestMappingInfo 和方法上的 @RequestMappingInfo 结合。
 				info = typeInfo.combine(info);
 			}
 			String prefix = getPathPrefix(handlerType);
@@ -253,6 +255,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 */
 	@Nullable
 	private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
+		// 扫描 @RequestMapping 注解，将必要的信息封装成 RequestMappingInfo
 		RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
 		RequestCondition<?> condition = (element instanceof Class ?
 				getCustomTypeCondition((Class<?>) element) : getCustomMethodCondition((Method) element));
