@@ -11,14 +11,14 @@ public class PropagationExampleServiceImpl implements PropagationExampleService 
 	@Autowired
 	PropagationExampleService propagationExampleService;
 
-	@Transactional
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public void methodA() throws InterruptedException {
 		Thread.sleep(100);
 		propagationExampleService.methodB();
 	}
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional(propagation = Propagation.REQUIRES_NEW,rollbackFor = Exception.class)
 	@Override
 	public void methodB() throws InterruptedException {
 		Thread.sleep(100);
