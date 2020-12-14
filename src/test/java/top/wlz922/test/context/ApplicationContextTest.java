@@ -7,9 +7,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import top.wlz922.bean.Dog;
 import top.wlz922.bean.DogFactory;
 import top.wlz922.bean.Fruit;
+import top.wlz922.customano.CustomAnoBean;
 import top.wlz922.cyclic.CyclicGoodsService;
 import top.wlz922.cyclic.CyclicOrderService;
 import top.wlz922.test.config.AspectAnoConfiguration;
+import top.wlz922.test.config.CustomAnoConfiguration;
 
 @Slf4j
 public class ApplicationContextTest {
@@ -45,5 +47,12 @@ public class ApplicationContextTest {
 		Fruit apple = context.getBean(Fruit.class);
 		apple.showTaste();
 		// apple.seed("hello world");
+	}
+
+	@Test
+	public void testCustomAno(){
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(CustomAnoConfiguration.class);
+		CustomAnoBean bean = context.getBean(CustomAnoBean.class);
+		System.out.println(bean.getName());
 	}
 }

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * 事务
@@ -42,6 +43,12 @@ public class GlobalTransactionConfig {
 		fb.setDataSource(ds);
 		ResourcePatternResolver resolver = ResourcePatternUtils.getResourcePatternResolver(context);
 		Resource[] resources = resolver.getResources("classpath:sqlmaps/*.xml");
+
+		Properties properties = new Properties();
+		properties.setProperty("lazyLoadingEnabled","true");
+		properties.setProperty("aggressiveLazyLoading","true");
+
+		fb.setConfigurationProperties(properties);
 		fb.setMapperLocations(resources);
 		return fb;
 	}
