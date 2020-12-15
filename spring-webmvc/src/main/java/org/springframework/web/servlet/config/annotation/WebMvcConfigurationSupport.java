@@ -208,7 +208,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	/** 消息转换器 */
 	@Nullable
 	private List<HttpMessageConverter<?>> messageConverters;
-	/** cros 跨域相关 */
+	/** cors 跨域相关 */
 	@Nullable
 	private Map<String, CorsConfiguration> corsConfigurations;
 

@@ -597,7 +597,6 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			// support or the context injected at construction time had already been
 			// refreshed -> trigger initial onRefresh manually here.
 			synchronized (this.onRefreshMonitor) {
-				// TODO 初始化 initHandlerMappings、initHandlerAdapters 等
 				onRefresh(wac);
 			}
 		}
@@ -702,6 +701,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 		postProcessWebApplicationContext(wac);
 		applyInitializers(wac);
+		// 这里调用了核心方法 refresh()
 		wac.refresh();
 	}
 
