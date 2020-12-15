@@ -184,31 +184,31 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 		jsonbPresent = ClassUtils.isPresent("javax.json.bind.Jsonb", classLoader);
 	}
 
-
+	/** spring容器的上下文对象 */
 	@Nullable
 	private ApplicationContext applicationContext;
-
+	/** servlet 上下文对象 */
 	@Nullable
 	private ServletContext servletContext;
-
+    /** springmvc 拦截器封装 */
 	@Nullable
 	private List<Object> interceptors;
-
+	/** 帮助配置HandlerMappings路径匹配类的封装 */
 	@Nullable
 	private PathMatchConfigurer pathMatchConfigurer;
-
+	/** 内容协商机制 */
 	@Nullable
 	private ContentNegotiationManager contentNegotiationManager;
-
+	/** 方法的参数处理 */
 	@Nullable
 	private List<HandlerMethodArgumentResolver> argumentResolvers;
-
+	/** 方法的返回值处理 */
 	@Nullable
 	private List<HandlerMethodReturnValueHandler> returnValueHandlers;
-
+	/** 消息转换器 */
 	@Nullable
 	private List<HttpMessageConverter<?>> messageConverters;
-
+	/** cros 跨域相关 */
 	@Nullable
 	private Map<String, CorsConfiguration> corsConfigurations;
 
@@ -362,6 +362,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	 */
 	@Bean
 	public PathMatcher mvcPathMatcher() {
+		// 这里是一个回调，遍历调用封装的 WebMvcConfigurer
 		PathMatcher pathMatcher = getPathMatchConfigurer().getPathMatcher();
 		return (pathMatcher != null ? pathMatcher : new AntPathMatcher());
 	}
@@ -388,6 +389,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 		if (this.contentNegotiationManager == null) {
 			ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer(this.servletContext);
 			configurer.mediaTypes(getDefaultMediaTypes());
+			// DelegatingWebMvcConfiguration 的回调
 			configureContentNegotiation(configurer);
 			this.contentNegotiationManager = configurer.buildContentNegotiationManager();
 		}
@@ -430,6 +432,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	@Bean
 	@Nullable
 	public HandlerMapping viewControllerHandlerMapping() {
+		// 创建 ViewControllerRegistry
 		ViewControllerRegistry registry = new ViewControllerRegistry(this.applicationContext);
 		addViewControllers(registry);
 
@@ -548,7 +551,9 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	 */
 	@Bean
 	public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
+		// 创建 RequestMappingHandlerAdapter
 		RequestMappingHandlerAdapter adapter = createRequestMappingHandlerAdapter();
+		// 这里设置的每一个参数，都触发了相应的回调，如果实现了对应方法，就会将配置注册到这个组件中，否则就注册默认的配置。
 		adapter.setContentNegotiationManager(mvcContentNegotiationManager());
 		adapter.setMessageConverters(getMessageConverters());
 		adapter.setWebBindingInitializer(getConfigurableWebBindingInitializer());
@@ -568,6 +573,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 		if (configurer.getTimeout() != null) {
 			adapter.setAsyncRequestTimeout(configurer.getTimeout());
 		}
+		// 触发了对应的回调
 		adapter.setCallableInterceptors(configurer.getCallableInterceptors());
 		adapter.setDeferredResultInterceptors(configurer.getDeferredResultInterceptors());
 
@@ -869,9 +875,12 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	 */
 	@Bean
 	public HandlerExceptionResolver handlerExceptionResolver() {
+		// 全局异常处理器的创建注册
 		List<HandlerExceptionResolver> exceptionResolvers = new ArrayList<>();
+		// 钩子方法，遍历依次回调封装的 WebMvcConfigurer
 		configureHandlerExceptionResolvers(exceptionResolvers);
 		if (exceptionResolvers.isEmpty()) {
+			// 如果没有定义，则添加默认的异常处理器
 			addDefaultHandlerExceptionResolvers(exceptionResolvers);
 		}
 		extendHandlerExceptionResolvers(exceptionResolvers);
@@ -1000,6 +1009,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	protected final Map<String, CorsConfiguration> getCorsConfigurations() {
 		if (this.corsConfigurations == null) {
 			CorsRegistry registry = new CorsRegistry();
+			// 这里遍历了DelegatingWebMvcConfiguration中封装的 WebMvcConfigurer，依次将对应方法调用
 			addCorsMappings(registry);
 			this.corsConfigurations = registry.getCorsConfigurations();
 		}

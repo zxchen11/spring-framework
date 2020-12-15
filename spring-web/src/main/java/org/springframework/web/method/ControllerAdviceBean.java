@@ -16,10 +16,6 @@
 
 package org.springframework.web.method;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ApplicationContext;
@@ -30,6 +26,10 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Encapsulates information about an {@linkplain ControllerAdvice @ControllerAdvice}
@@ -186,6 +186,7 @@ public class ControllerAdviceBean implements Ordered {
 	 * ApplicationContext and wrap them as {@code ControllerAdviceBean} instances.
 	 */
 	public static List<ControllerAdviceBean> findAnnotatedBeans(ApplicationContext context) {
+		// 这里是针对Controller层全局异常处理注解支持的扫描。
 		return Arrays.stream(BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context, Object.class))
 				.filter(name -> context.findAnnotationOnBean(name, ControllerAdvice.class) != null)
 				.map(name -> new ControllerAdviceBean(name, context))
