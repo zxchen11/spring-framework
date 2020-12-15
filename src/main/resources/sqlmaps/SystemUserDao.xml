@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.wlz922.dao.SystemUserDao">
+  <resultMap id="BaseResultMap" type="top.wlz922.bean.SystemUser">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="passwrod" jdbcType="VARCHAR" property="passwrod" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_name, passwrod, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from system_user
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from system_user
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="top.wlz922.bean.SystemUser" useGeneratedKeys="true">
+    insert into system_user (user_name, passwrod, create_time
+      )
+    values (#{userName,jdbcType=VARCHAR}, #{passwrod,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="top.wlz922.bean.SystemUser" useGeneratedKeys="true">
+    insert into system_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="passwrod != null">
+        passwrod,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="passwrod != null">
+        #{passwrod,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="top.wlz922.bean.SystemUser">
+    update system_user
+    <set>
+      <if test="userName != null">
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="passwrod != null">
+        passwrod = #{passwrod,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="top.wlz922.bean.SystemUser">
+    update system_user
+    set user_name = #{userName,jdbcType=VARCHAR},
+      passwrod = #{passwrod,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <resultMap id="systemUserCardVoMap" type="top.wlz922.bean.SystemUserCardVo">
+    <id column="id" property="id"/>
+    <result column="user_name" property="userName"/>
+    <result column="password" property="passwrod"/>
+    <result column="create_time" property="createTime"/>
+    <association fetchType="lazy" property="userCard" select="top.wlz922.dao.SystemUserCardDao.getUserCard" column="id" />
+  </resultMap>
+  <resultMap id="userCardMap" type="top.wlz922.bean.SystemUserCard">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="system_user_id" jdbcType="BIGINT" property="systemUserId" />
+    <result column="card_number" jdbcType="VARCHAR" property="cardNumber" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+
+  <select id="getUserCardVo" resultMap="systemUserCardVoMap">
+    select id, user_name, passwrod, create_time from system_user where id = #{userId}
+  </select>
+  <select id="listUserCardVo" resultMap="systemUserCardVoMap">
+    select id, user_name, passwrod, create_time from system_user limit 10
+  </select>
+
+</mapper>

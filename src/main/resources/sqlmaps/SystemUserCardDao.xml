@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.wlz922.dao.SystemUserCardDao">
+  <resultMap id="BaseResultMap" type="top.wlz922.bean.SystemUserCard">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="system_user_id" jdbcType="BIGINT" property="systemUserId" />
+    <result column="card_number" jdbcType="VARCHAR" property="cardNumber" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, system_user_id, card_number, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from system_user_card
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from system_user_card
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="top.wlz922.bean.SystemUserCard" useGeneratedKeys="true">
+    insert into system_user_card (system_user_id, card_number, create_time
+      )
+    values (#{systemUserId,jdbcType=BIGINT}, #{cardNumber,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="top.wlz922.bean.SystemUserCard" useGeneratedKeys="true">
+    insert into system_user_card
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="systemUserId != null">
+        system_user_id,
+      </if>
+      <if test="cardNumber != null">
+        card_number,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="systemUserId != null">
+        #{systemUserId,jdbcType=BIGINT},
+      </if>
+      <if test="cardNumber != null">
+        #{cardNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="top.wlz922.bean.SystemUserCard">
+    update system_user_card
+    <set>
+      <if test="systemUserId != null">
+        system_user_id = #{systemUserId,jdbcType=BIGINT},
+      </if>
+      <if test="cardNumber != null">
+        card_number = #{cardNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="top.wlz922.bean.SystemUserCard">
+    update system_user_card
+    set system_user_id = #{systemUserId,jdbcType=BIGINT},
+      card_number = #{cardNumber,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="getUserCard" resultMap="BaseResultMap">
+    select id, system_user_id, card_number, create_time from system_user_card where id = #{id}
+  </select>
+</mapper>
