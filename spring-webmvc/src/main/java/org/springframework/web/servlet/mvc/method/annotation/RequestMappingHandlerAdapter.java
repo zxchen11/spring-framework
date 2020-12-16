@@ -98,29 +98,29 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			(!AnnotatedElementUtils.hasAnnotation(method, RequestMapping.class) &&
 					AnnotatedElementUtils.hasAnnotation(method, ModelAttribute.class));
 
-
+	/** 自定义的参数解析器，策略模式的运用， HandlerMethodArgumentResolver中提供了两个方法：是否支持解析参数的判断、解析参数方法。*/
 	@Nullable
 	private List<HandlerMethodArgumentResolver> customArgumentResolvers;
-
+	/** 参数解析聚合，内部封装了所有的HandlerMethodArgumentResolver实例 */
 	@Nullable
 	private HandlerMethodArgumentResolverComposite argumentResolvers;
-
+	/** initBinder参数解析器 */
 	@Nullable
 	private HandlerMethodArgumentResolverComposite initBinderArgumentResolvers;
-
+	/** 自定义的返回值处理器 */
 	@Nullable
 	private List<HandlerMethodReturnValueHandler> customReturnValueHandlers;
-
+	/** 返回值处理组合，与WebMvcConfigurer组合类设计模式相同。内部封装了所有的HandlerMethodReturnValueHandler */
 	@Nullable
 	private HandlerMethodReturnValueHandlerComposite returnValueHandlers;
-
+	/** 视图解析器 */
 	@Nullable
 	private List<ModelAndViewResolver> modelAndViewResolvers;
 
 	private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
-
+	/** 消息转换器 */
 	private List<HttpMessageConverter<?>> messageConverters;
-
+	/** 一些增强类，参数解析、返回值处理类的封装 */
 	private List<Object> requestResponseBodyAdvice = new ArrayList<>();
 
 	@Nullable
@@ -528,18 +528,23 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
 	@Override
 	public void afterPropertiesSet() {
+		// TODO 在第一次执行时，会初始化ControllerAdvice缓存。
 		// Do this first, it may add ResponseBody advice beans
 		initControllerAdviceCache();
 
 		if (this.argumentResolvers == null) {
+			// TODO 参数解析器，里面注册了很多的参数解析类。实际上，参数的解析是一个十分复杂的过程，它的可能情况太多了。
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultArgumentResolvers();
+			// 将所有的参数解析器封装到 argumentResolvers 中。
 			this.argumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
 		}
 		if (this.initBinderArgumentResolvers == null) {
+			// initBinder 参数解析器
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultInitBinderArgumentResolvers();
 			this.initBinderArgumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
 		}
 		if (this.returnValueHandlers == null) {
+			// 方法返回值处理类注册
 			List<HandlerMethodReturnValueHandler> handlers = getDefaultReturnValueHandlers();
 			this.returnValueHandlers = new HandlerMethodReturnValueHandlerComposite().addHandlers(handlers);
 		}
@@ -549,7 +554,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		if (getApplicationContext() == null) {
 			return;
 		}
-		// 全局异常处理的Bean扫描 	@ControllerAdvice
+		// TODO 全局异常处理的Bean扫描，@ControllerAdvice 注解的bean会被扫描到。
 		List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
 		AnnotationAwareOrderComparator.sort(adviceBeans);
 
@@ -563,11 +568,13 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			// 方法过滤器 @RequestMapping && @ModelAttribute 注解扫描
 			Set<Method> attrMethods = MethodIntrospector.selectMethods(beanType, MODEL_ATTRIBUTE_METHODS);
 			if (!attrMethods.isEmpty()) {
+				// 封装adviceBean和 @ModelAttribute 注解方法的映射关系。
 				this.modelAttributeAdviceCache.put(adviceBean, attrMethods);
 			}
 			// 方法过滤器 InitBinder 扫描
 			Set<Method> binderMethods = MethodIntrospector.selectMethods(beanType, INIT_BINDER_METHODS);
 			if (!binderMethods.isEmpty()) {
+				// 封装 adviceBean 和 binderMethods 的映射关系
 				this.initBinderAdviceCache.put(adviceBean, binderMethods);
 			}
 			if (RequestBodyAdvice.class.isAssignableFrom(beanType)) {
@@ -612,7 +619,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 */
 	private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() {
 		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
-
+		// 这里注册了一系列的默认参数解析器，在大多数应用场景下的参数解析，都是可以支持的，一般不需要我们自定义。
 		// Annotation-based argument resolution
 		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false));
 		resolvers.add(new RequestParamMapMethodArgumentResolver());
@@ -659,7 +666,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 */
 	private List<HandlerMethodArgumentResolver> getDefaultInitBinderArgumentResolvers() {
 		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
-
+		// 注册了一些参数解析器，用于InitBinder方法的参数解析
 		// Annotation-based argument resolution
 		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false));
 		resolvers.add(new RequestParamMapMethodArgumentResolver());
@@ -692,7 +699,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 */
 	private List<HandlerMethodReturnValueHandler> getDefaultReturnValueHandlers() {
 		List<HandlerMethodReturnValueHandler> handlers = new ArrayList<>();
-
+		// 注册了很多返回值处理类，用于处理返回值的一些信息。
 		// Single-purpose return value types
 		handlers.add(new ModelAndViewMethodReturnValueHandler());
 		handlers.add(new ModelMethodProcessor());

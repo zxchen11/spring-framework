@@ -84,7 +84,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 	@Nullable
 	private HandlerMethodMappingNamingStrategy<T> namingStrategy;
-
+	/** 注册mapping，这里面封装了一系列的映射信息，url-requestMappingInfo、requestMappingInfo-handlerMethod等的映射。 */
 	private final MappingRegistry mappingRegistry = new MappingRegistry();
 
 
@@ -187,7 +187,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Override
 	public void afterPropertiesSet() {
-		// 初始化 RequestMappingInfoHandlerMapping，这里完成了 MVC 相关注解支持的扫描及封装。
+		// TODO 初始化 RequestMappingInfoHandlerMapping，这里完成了 MVC 相关注解支持的扫描及封装。
 		initHandlerMethods();
 	}
 
@@ -198,13 +198,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * @see #handlerMethodsInitialized
 	 */
 	protected void initHandlerMethods() {
-		// 获取ApplicationContext容器中所有的beanName，循环判断不是以scopedTarget.的beanName执行候选操作。
+		// 获取ApplicationContext容器中所有的beanName，循环判断不是以scopedTarget.开头的beanName执行候选操作。
 		for (String beanName : getCandidateBeanNames()) {
 			if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {
 				// TODO 执行操作。
 				processCandidateBean(beanName);
 			}
 		}
+		// 一个钩子方法，在查找并封装完完所有的处理方法各种映射关系之后，进行调用。
 		handlerMethodsInitialized(getHandlerMethods());
 	}
 
@@ -259,6 +260,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 		if (handlerType != null) {
 			Class<?> userType = ClassUtils.getUserClass(handlerType);
+			// 获取方法 - RequestMappingInfo 的映射
 			Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
 					(MethodIntrospector.MetadataLookup<T>) method -> {
 						try {
@@ -275,9 +277,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			}
 			// TODO 注册处理方法
 			methods.forEach((method, mapping) -> {
-				// 获取到对应的方法
+				// 获取到可调用的方法
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
-				// 注册 HandlerMethod
+				// TODO 注册 HandlerMethod
 				registerHandlerMethod(handler, invocableMethod, mapping);
 			});
 		}
@@ -311,6 +313,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * under the same mapping
 	 */
 	protected void registerHandlerMethod(Object handler, Method method, T mapping) {
+		// TODO 注册映射信息
 		this.mappingRegistry.register(mapping, handler, method);
 	}
 
@@ -527,17 +530,17 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * <p>Package-private for testing purposes.
 	 */
 	class MappingRegistry {
-
+		/** 封装了 RequestMappingInfo、HandlerMethod、directUrls、mappingName信息。 */
 		private final Map<T, MappingRegistration<T>> registry = new HashMap<>();
-
+		/** 封装 RequestMappingInfo - HandlerMethod 映射关系 */
 		private final Map<T, HandlerMethod> mappingLookup = new LinkedHashMap<>();
-
+		/** 封装 url - RequestMappingInfo 映射信息 */
 		private final MultiValueMap<String, T> urlLookup = new LinkedMultiValueMap<>();
-
+		/** 封装 RequestMappingInfo名称 - HandlerMethod列表 映射信息 */
 		private final Map<String, List<HandlerMethod>> nameLookup = new ConcurrentHashMap<>();
-
+		/** 封装 handlerMethod - cors跨域配置的映射信息 */
 		private final Map<HandlerMethod, CorsConfiguration> corsLookup = new ConcurrentHashMap<>();
-
+		/** 读写锁，保证线程安全，在写入的时候不允许读写，读操作可以并行执行 */
 		private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
 		/**
@@ -598,20 +601,25 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				// TODO 获取到RequestMappingInfo中的 paths（用于匹配请求路径的url），遍历，依次建立 url - RequestMappingInfo的映射关系。
 				List<String> directUrls = getDirectUrls(mapping);
 				for (String url : directUrls) {
+					// 建立 url - RequestMappingInfo的映射关系。
+					// 当一个请求过来的时候，就可以根据url找到对应的RequestMappingInfo，通过RequestMappingInfo
+					// 就可以在 mappingLookup 中找到 handlerMethod，即controller中的方法。
 					this.urlLookup.add(url, mapping);
 				}
 
+				// requestMappingInfo的名称策略，将名称 - requestMappingInfo的映射缓存到 nameLookup。
 				String name = null;
 				if (getNamingStrategy() != null) {
 					name = getNamingStrategy().getName(handlerMethod, mapping);
 					addMappingName(name, handlerMethod);
 				}
-
+				// 缓存跨域配置信息。将handlerMethod和corsConfig的映射缓存到 corsLookup
 				CorsConfiguration corsConfig = initCorsConfiguration(handler, method, mapping);
 				if (corsConfig != null) {
 					this.corsLookup.put(handlerMethod, corsConfig);
 				}
-
+				// RequestMappingInfo - MappingRegistration映射。
+				// MappingRegistration 中封装了 RequestMappingInfo、HandlerMethod、directUrls、mappingName信息。
 				this.registry.put(mapping, new MappingRegistration<>(mapping, handlerMethod, directUrls, name));
 			}
 			finally {

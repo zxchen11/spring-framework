@@ -16,13 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.function.Consumer;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.core.ResolvableType;
@@ -43,6 +36,13 @@ import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.filter.ShallowEtagHeaderFilter;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Handler for return values of type {@link ResponseBodyEmitter} and sub-classes
@@ -114,7 +114,7 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
 		HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
 		Assert.state(response != null, "No HttpServletResponse");
 		ServerHttpResponse outputMessage = new ServletServerHttpResponse(response);
-
+		// 对于ResponseEntity类型的处理
 		if (returnValue instanceof ResponseEntity) {
 			ResponseEntity<?> responseEntity = (ResponseEntity<?>) returnValue;
 			response.setStatus(responseEntity.getStatusCodeValue());

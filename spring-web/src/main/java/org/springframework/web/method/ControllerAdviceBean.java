@@ -45,14 +45,14 @@ import java.util.stream.Collectors;
  * @since 3.2
  */
 public class ControllerAdviceBean implements Ordered {
-
+	/** bean实例 */
 	private final Object bean;
-
+	/** beanFactory */
 	@Nullable
 	private final BeanFactory beanFactory;
-
+	/** 排序，通过@Order注解来设置 */
 	private final int order;
-
+	/** ControllerAdvice 注解中的参数信息封装 */
 	private final HandlerTypePredicate beanTypePredicate;
 
 
@@ -87,6 +87,8 @@ public class ControllerAdviceBean implements Ordered {
 						"] does not contain specified controller advice bean '" + beanName + "'");
 			}
 			beanType = this.beanFactory.getType(beanName);
+			// 扫描bean类型的@Order注解，通过调用OrderUtils.getOrder()来获取排序的值。
+			// 如果未设置排序，则排序值默认为int最大值，即排在最后面。
 			this.order = initOrderFromBeanType(beanType);
 		}
 		else {
@@ -99,6 +101,7 @@ public class ControllerAdviceBean implements Ordered {
 				AnnotatedElementUtils.findMergedAnnotation(beanType, ControllerAdvice.class) : null);
 
 		if (annotation != null) {
+			// 一个建造者模式的运用，封装了ControllerAdvice注解中的参数值。
 			this.beanTypePredicate = HandlerTypePredicate.builder()
 					.basePackage(annotation.basePackages())
 					.basePackageClass(annotation.basePackageClasses())

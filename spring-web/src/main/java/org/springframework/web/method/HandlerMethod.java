@@ -16,17 +16,8 @@
 
 package org.springframework.web.method;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.GenericTypeResolver;
@@ -41,6 +32,14 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Encapsulates information about a handler method consisting of a
@@ -63,29 +62,30 @@ public class HandlerMethod {
 
 	/** Logger that is available to subclasses. */
 	protected final Log logger = LogFactory.getLog(getClass());
-
+	/** bean实例 */
 	private final Object bean;
-
+	/** beanFactory 工厂 */
 	@Nullable
 	private final BeanFactory beanFactory;
-
+	/** bean的类型 */
 	private final Class<?> beanType;
-
+	/** 方法 */
 	private final Method method;
-
+	/** 桥接方法 */
 	private final Method bridgedMethod;
-
+	/** 方法参数封装 */
 	private final MethodParameter[] parameters;
-
+	/** Http状态 */
 	@Nullable
 	private HttpStatus responseStatus;
-
+	/** 响应状态信息 */
 	@Nullable
 	private String responseStatusReason;
 
 	@Nullable
 	private HandlerMethod resolvedFromHandlerMethod;
 
+	/** 接口参数注解 */
 	@Nullable
 	private volatile List<Annotation[][]> interfaceParameterAnnotations;
 
@@ -136,6 +136,8 @@ public class HandlerMethod {
 		if (beanType == null) {
 			throw new IllegalStateException("Cannot resolve bean type for bean with name '" + beanName + "'");
 		}
+		// 这里仅仅设置了一个beanType，这时候，bean实例并没有封装进来。在真正调用方法执行时，这个bean实例是必须有的。
+		// 它在别的地方进行了设置。
 		this.beanType = ClassUtils.getUserClass(beanType);
 		this.method = method;
 		this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
