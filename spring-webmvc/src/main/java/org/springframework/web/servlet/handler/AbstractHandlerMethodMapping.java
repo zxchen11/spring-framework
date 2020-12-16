@@ -371,6 +371,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		try {
 			// 根据路径获取到 HandlerMapping，再根据 HandlerMapping 获取到 HandlerMethod
 			HandlerMethod handlerMethod = lookupHandlerMethod(lookupPath, request);
+			// TODO 因为在初始化 HandlerMethod 时，并没有将bean实例封装进去，只是封装了一个 beanClass 和 beanName。
+			//  如果获取到 handlerMethod 不为空，则会在这里进行 getBean 操作，将 bean 实例封装到 handlerMethod中。
 			return (handlerMethod != null ? handlerMethod.createWithResolvedBean() : null);
 		}
 		finally {
@@ -390,7 +392,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	@Nullable
 	protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {
 		List<Match> matches = new ArrayList<>();
-		// 获取映射URL列表
+		// 根据url路径从 urlLookup 中获取 RequestMappingInfo
 		List<T> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);
 		if (directPathMatches != null) {
 			addMatchingMappings(directPathMatches, matches, request);
@@ -434,6 +436,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		for (T mapping : mappings) {
 			T match = getMatchingMapping(mapping, request);
 			if (match != null) {
+				// 从 mappingLookup 中获取 handlerMethod
 				matches.add(new Match(match, this.mappingRegistry.getMappings().get(mapping)));
 			}
 		}

@@ -16,15 +16,15 @@
 
 package org.springframework.web.servlet.handler;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.context.request.WebRequestInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Contains and delegates calls to a {@link HandlerInterceptor} along with
@@ -145,6 +145,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 	 */
 	public boolean matches(String lookupPath, PathMatcher pathMatcher) {
 		PathMatcher pathMatcherToUse = (this.pathMatcher != null ? this.pathMatcher : pathMatcher);
+		// 首先执行 excludePatterns，所以如果 includePatterns 中也配置了相同的路径，如果在 excludePatterns 匹配到，同样会返回false。
 		if (!ObjectUtils.isEmpty(this.excludePatterns)) {
 			for (String pattern : this.excludePatterns) {
 				if (pathMatcherToUse.match(pattern, lookupPath)) {
@@ -152,9 +153,11 @@ public final class MappedInterceptor implements HandlerInterceptor {
 				}
 			}
 		}
+		// 如果没有配置 includePatterns，并且在excludePatterns中未被拦截，则默认返回true
 		if (ObjectUtils.isEmpty(this.includePatterns)) {
 			return true;
 		}
+		// 最后执行 includePatterns。
 		for (String pattern : this.includePatterns) {
 			if (pathMatcherToUse.match(pattern, lookupPath)) {
 				return true;

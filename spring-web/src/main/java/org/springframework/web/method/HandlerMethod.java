@@ -319,6 +319,8 @@ public class HandlerMethod {
 	 */
 	public HandlerMethod createWithResolvedBean() {
 		Object handler = this.bean;
+		// 最初这个 bean 成员变量，只是设置了一个 beanName，因此它是字符串类型的，执行到这里会调用 getBean()，将真正的实例设置到这里。
+		// 如果已经设置过了，bean就不是字符串类型了，就不会进这个 if 语句。
 		if (this.bean instanceof String) {
 			Assert.state(this.beanFactory != null, "Cannot resolve bean name without BeanFactory");
 			String beanName = (String) this.bean;

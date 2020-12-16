@@ -951,6 +951,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		// Global methods first
 		this.initBinderAdviceCache.forEach((clazz, methodSet) -> {
 			if (clazz.isApplicableToBeanType(handlerType)) {
+				// 如果有 initBinder，则第一次进来时，会从beanFactory中getBean()，获取bean的实例对象。
 				Object bean = clazz.resolveBean();
 				for (Method method : methodSet) {
 					initBinderMethods.add(createInitBinderMethod(bean, method));

@@ -393,6 +393,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	@Override
 	@Nullable
 	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+		// TODO 获取 HandlerMethod
 		Object handler = getHandlerInternal(request);
 		if (handler == null) {
 			handler = getDefaultHandler();
@@ -405,7 +406,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 			String handlerName = (String) handler;
 			handler = obtainApplicationContext().getBean(handlerName);
 		}
-
+		// TODO 将 handlerMethod，包装到 HandlerExecutionChain 中。
 		HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
 
 		if (logger.isTraceEnabled()) {
@@ -465,10 +466,15 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 * @see #getAdaptedInterceptors()
 	 */
 	protected HandlerExecutionChain getHandlerExecutionChain(Object handler, HttpServletRequest request) {
+		// 创建拦截器链
 		HandlerExecutionChain chain = (handler instanceof HandlerExecutionChain ?
 				(HandlerExecutionChain) handler : new HandlerExecutionChain(handler));
 		// 拦截器匹配，获取拦截器执行链
 		String lookupPath = this.urlPathHelper.getLookupPathForRequest(request);
+		// 遍历所有的拦截器，如果是 MappedInterceptor，根据拦截器的 excludePatterns 和 includePatterns 来进行匹配。
+		// 如果没有配置 includePatterns 且在 excludePatterns 没有匹配到，则默认为 true。
+		// 也就是说 MappedInterceptor 中具有路径匹配功能，同时包装了一个 HandlerInterceptor 实现。
+		// 而 HandlerInterceptor 中仅仅定义了 前置、中置、后置拦截方法。
 		for (HandlerInterceptor interceptor : this.adaptedInterceptors) {
 			if (interceptor instanceof MappedInterceptor) {
 				MappedInterceptor mappedInterceptor = (MappedInterceptor) interceptor;

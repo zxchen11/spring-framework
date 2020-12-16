@@ -135,6 +135,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Arguments: " + Arrays.toString(args));
 		}
+		// TODO 方法的反射执行
 		return doInvoke(args);
 	}
 
@@ -161,7 +162,8 @@ public class InvocableHandlerMethod extends HandlerMethod {
 			if (args[i] != null) {
 				continue;
 			}
-			// 典型的策略模式，根据parameter能否找到对应参数的处理类，能找到就返回true
+			// TODO 典型的策略模式，根据parameter能否找到对应参数的处理类，能找到就返回true
+			//  这里遍历了所有的参数解析器，如果没有一个解析器支持此参数的解析，则抛出异常。
 			if (!this.resolvers.supportsParameter(parameter)) {
 				throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
 			}
@@ -188,6 +190,8 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 */
 	@Nullable
 	protected Object doInvoke(Object... args) throws Exception {
+		// 将方法设置为允许访问，反射调用方法执行。
+		// 注意：方法的反射执行需要对象实例和参数列表。在handlerMethod封装时，并没有封装bean实例。这个bean是哪儿来的？
 		ReflectionUtils.makeAccessible(getBridgedMethod());
 		try {
 			return getBridgedMethod().invoke(getBean(), args);

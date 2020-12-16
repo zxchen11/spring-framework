@@ -16,11 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.core.Conventions;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -43,6 +38,11 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * Resolves method arguments annotated with {@code @RequestBody} and handles return
@@ -175,7 +175,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 		mavContainer.setRequestHandled(true);
 		ServletServerHttpRequest inputMessage = createInputMessage(webRequest);
 		ServletServerHttpResponse outputMessage = createOutputMessage(webRequest);
-
+		// 使用消息转换器写出响应信息。
 		// Try even with null return value. ResponseBodyAdvice could get involved.
 		writeWithMessageConverters(returnValue, returnType, inputMessage, outputMessage);
 	}

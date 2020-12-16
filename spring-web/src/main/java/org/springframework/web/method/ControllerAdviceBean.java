@@ -140,6 +140,7 @@ public class ControllerAdviceBean implements Ordered {
 	 * Return a bean instance if necessary resolving the bean name through the BeanFactory.
 	 */
 	public Object resolveBean() {
+		// 从beanFactory中获取bean实例
 		return (this.bean instanceof String ? obtainBeanFactory().getBean((String) this.bean) : this.bean);
 	}
 

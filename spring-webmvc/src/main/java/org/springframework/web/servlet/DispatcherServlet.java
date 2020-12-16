@@ -1070,6 +1070,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				}
 
 				applyDefaultViewName(processedRequest, mv);
+				// 执行中置拦截
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {
@@ -1080,6 +1081,8 @@ public class DispatcherServlet extends FrameworkServlet {
 				// making them available for @ExceptionHandler methods and other scenarios.
 				dispatchException = new NestedServletException("Handler dispatch failed", err);
 			}
+			// TODO 处理结果，这里执行了后置拦截。在前面的流程里捕获了业务方法执行过程中抛出的异常。
+			//  如果上面的流程中抛出了异常，则dispatchException一定有值。
 			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
 		}
 		catch (Exception ex) {
@@ -1126,13 +1129,14 @@ public class DispatcherServlet extends FrameworkServlet {
 			@Nullable Exception exception) throws Exception {
 
 		boolean errorView = false;
-
+		// 如果前面的流程中抛出了异常，在这里会进行处理。
 		if (exception != null) {
 			if (exception instanceof ModelAndViewDefiningException) {
 				logger.debug("ModelAndViewDefiningException encountered", exception);
 				mv = ((ModelAndViewDefiningException) exception).getModelAndView();
 			}
 			else {
+				// TODO 异常处理
 				Object handler = (mappedHandler != null ? mappedHandler.getHandler() : null);
 				mv = processHandlerException(request, response, handler, exception);
 				errorView = (mv != null);
@@ -1256,8 +1260,9 @@ public class DispatcherServlet extends FrameworkServlet {
 	protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
 		// handlerMappering实例
 		if (this.handlerMappings != null) {
+			// 在 DispatcherServlet 初始化的时候，会将handlerMappings的值，赋值到这里。
 			for (HandlerMapping mapping : this.handlerMappings) {
-				// 获取HandlerMethod和过滤器链的包装类
+				// 获取HandlerMethod和拦截器链的包装类
 				HandlerExecutionChain handler = mapping.getHandler(request);
 				if (handler != null) {
 					return handler;
@@ -1293,6 +1298,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	protected HandlerAdapter getHandlerAdapter(Object handler) throws ServletException {
 		// 根据handlerMethod对象，找到合适的HandlerAdapter对象，这里用到了策略模式
+		// 遍历所有的 handlerAdapters，并调用其 supports()，如果有 adapter 支持这个 handlerMethod，就返回这个 adapter。
 		if (this.handlerAdapters != null) {
 			for (HandlerAdapter adapter : this.handlerAdapters) {
 				if (adapter.supports(handler)) {
@@ -1325,6 +1331,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		ModelAndView exMv = null;
 		if (this.handlerExceptionResolvers != null) {
 			for (HandlerExceptionResolver resolver : this.handlerExceptionResolvers) {
+				// TODO 异常处理
 				exMv = resolver.resolveException(request, response, handler, ex);
 				if (exMv != null) {
 					break;
