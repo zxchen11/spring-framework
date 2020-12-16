@@ -1056,7 +1056,7 @@ public class DispatcherServlet extends FrameworkServlet {
 					}
 				}
 
-				// 前置过滤器，如果为false则直接返回
+				// TODO 前置过滤器，如果为false则直接返回
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
@@ -1070,7 +1070,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				}
 
 				applyDefaultViewName(processedRequest, mv);
-				// 执行中置拦截
+				// TODO 执行中置拦截
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {

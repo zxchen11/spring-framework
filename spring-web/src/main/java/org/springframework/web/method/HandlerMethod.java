@@ -130,6 +130,7 @@ public class HandlerMethod {
 		Assert.hasText(beanName, "Bean name is required");
 		Assert.notNull(beanFactory, "BeanFactory is required");
 		Assert.notNull(method, "Method is required");
+		// 这里的变量 bean，仅仅封装了一个 beanName，并没有设置具体的实例。这个实例会在第一次调用controller方法时，去设置。
 		this.bean = beanName;
 		this.beanFactory = beanFactory;
 		Class<?> beanType = beanFactory.getType(beanName);
