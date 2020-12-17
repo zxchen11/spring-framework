@@ -1034,7 +1034,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 
-				// TODO 这个方法很重要，重点看
+				// TODO 这个方法很重要，重点看。获取封装了 handlerMethod、拦截器的执行链封装 HandlerExecutionChain。
 				// Determine handler for the current request.
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
@@ -1162,6 +1162,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 
 		if (mappedHandler != null) {
+			// 执行后置拦截
 			mappedHandler.triggerAfterCompletion(request, response, null);
 		}
 	}
@@ -1297,7 +1298,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @throws ServletException if no HandlerAdapter can be found for the handler. This is a fatal error.
 	 */
 	protected HandlerAdapter getHandlerAdapter(Object handler) throws ServletException {
-		// 根据handlerMethod对象，找到合适的HandlerAdapter对象，这里用到了策略模式
+		// 根据handlerMethod对象，找到合适的HandlerAdapter对象，这里是典型的的策略模式
 		// 遍历所有的 handlerAdapters，并调用其 supports()，如果有 adapter 支持这个 handlerMethod，就返回这个 adapter。
 		if (this.handlerAdapters != null) {
 			for (HandlerAdapter adapter : this.handlerAdapters) {

@@ -40,10 +40,10 @@ public class HandlerExecutionChain {
 	private static final Log logger = LogFactory.getLog(HandlerExecutionChain.class);
 	/** 这里是一个 handlerMethod */
 	private final Object handler;
-	/** 拦截器 */
+	/** 拦截器，最终会合并到 interceptorList */
 	@Nullable
 	private HandlerInterceptor[] interceptors;
-
+	/** 拦截器 */
 	@Nullable
 	private List<HandlerInterceptor> interceptorList;
 
@@ -99,6 +99,7 @@ public class HandlerExecutionChain {
 	private List<HandlerInterceptor> initInterceptorList() {
 		if (this.interceptorList == null) {
 			this.interceptorList = new ArrayList<>();
+			// 如果 interceptors 中有值，合并到 interceptorList 中。
 			if (this.interceptors != null) {
 				// An interceptor array specified through the constructor
 				CollectionUtils.mergeArrayIntoCollection(this.interceptors, this.interceptorList);
@@ -172,6 +173,7 @@ public class HandlerExecutionChain {
 
 		HandlerInterceptor[] interceptors = getInterceptors();
 		if (!ObjectUtils.isEmpty(interceptors)) {
+			// 倒序执行，起始索引是最后一个返回 true 的前置拦截的索引。
 			for (int i = this.interceptorIndex; i >= 0; i--) {
 				HandlerInterceptor interceptor = interceptors[i];
 				try {
