@@ -2,6 +2,7 @@ package top.wlz922.test.context;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import top.wlz922.bean.Dog;
@@ -54,5 +55,9 @@ public class ApplicationContextTest {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(CustomAnoConfiguration.class);
 		CustomAnoBean bean = context.getBean(CustomAnoBean.class);
 		System.out.println(bean.getName());
+		final DefaultListableBeanFactory factory = (DefaultListableBeanFactory) context.getBeanFactory();
+		factory.destroySingleton("customAnoBean");
+		bean = factory.getBean(CustomAnoBean.class);
+		System.out.println(bean);
 	}
 }
