@@ -16,17 +16,8 @@
 
 package org.springframework.web.method.annotation;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.Conventions;
 import org.springframework.core.GenericTypeResolver;
@@ -45,6 +36,9 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.method.support.InvocableHandlerMethod;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
  * Assist with initialization of the {@link Model} before controller method
@@ -108,6 +102,7 @@ public final class ModelFactory {
 
 		Map<String, ?> sessionAttributes = this.sessionAttributesHandler.retrieveAttributes(request);
 		container.mergeAttributes(sessionAttributes);
+		// initModel优先于本类中具体的接口方法执行。
 		invokeModelAttributeMethods(request, container);
 
 		for (String name : findSessionAttributeArguments(handlerMethod)) {
@@ -129,16 +124,19 @@ public final class ModelFactory {
 			throws Exception {
 
 		while (!this.modelMethods.isEmpty()) {
+			// TODO 获取到handlerMethod，每获取一个，就会从 modelMethods 移除一个。
+			//  优先获取的是方法参数中带有 ModelAttribute 注解的方法。
 			InvocableHandlerMethod modelMethod = getNextModelMethod(container).getHandlerMethod();
 			ModelAttribute ann = modelMethod.getMethodAnnotation(ModelAttribute.class);
 			Assert.state(ann != null, "No ModelAttribute annotation");
+			// 如果 container 中已经包含这个名称的参数就跳过。
 			if (container.containsAttribute(ann.name())) {
 				if (!ann.binding()) {
 					container.setBindingDisabled(ann.name());
 				}
 				continue;
 			}
-
+			// 调用具体的方法。
 			Object returnValue = modelMethod.invokeForRequest(request, container);
 			if (!modelMethod.isVoid()){
 				String returnValueName = getNameForReturnValue(returnValue, modelMethod.getReturnType());
@@ -154,11 +152,13 @@ public final class ModelFactory {
 
 	private ModelMethod getNextModelMethod(ModelAndViewContainer container) {
 		for (ModelMethod modelMethod : this.modelMethods) {
+			// 如果container中已经包含所有的@ModelAttribute参数，就移除当前 modelMethod,并返回。
 			if (modelMethod.checkDependencies(container)) {
 				this.modelMethods.remove(modelMethod);
 				return modelMethod;
 			}
 		}
+		// 获取后移除已经获取的。
 		ModelMethod modelMethod = this.modelMethods.get(0);
 		this.modelMethods.remove(modelMethod);
 		return modelMethod;
@@ -284,6 +284,7 @@ public final class ModelFactory {
 
 		public ModelMethod(InvocableHandlerMethod handlerMethod) {
 			this.handlerMethod = handlerMethod;
+			// 将方法参数中有 ModelAttribute 的参数名，缓存起来
 			for (MethodParameter parameter : handlerMethod.getMethodParameters()) {
 				if (parameter.hasParameterAnnotation(ModelAttribute.class)) {
 					this.dependencies.add(getNameForParameter(parameter));

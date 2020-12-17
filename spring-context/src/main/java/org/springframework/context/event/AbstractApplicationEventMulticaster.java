@@ -187,7 +187,7 @@ public abstract class AbstractApplicationEventMulticaster
 					return retriever.getApplicationListeners();
 				}
 				retriever = new ListenerRetriever(true);
-				// 获取所有匹配的监听器，最后吧结果放入缓存中，下次直接从缓存中获取。
+				// 获取所有匹配的监听器，最后把结果放入缓存中，下次直接从缓存中获取。
 				Collection<ApplicationListener<?>> listeners =
 						retrieveApplicationListeners(eventType, sourceType, retriever);
 				this.retrieverCache.put(cacheKey, retriever);
@@ -232,6 +232,7 @@ public abstract class AbstractApplicationEventMulticaster
 			for (String listenerBeanName : listenerBeans) {
 				try {
 					Class<?> listenerType = beanFactory.getType(listenerBeanName);
+					// 判断是否支持事件
 					if (listenerType == null || supportsEvent(listenerType, eventType)) {
 						ApplicationListener<?> listener =
 								beanFactory.getBean(listenerBeanName, ApplicationListener.class);

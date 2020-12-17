@@ -1061,7 +1061,7 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
-				// TODO 调用到Controller具体方法，核心方法调用，重点看看
+				// TODO 重点，调用到Controller具体方法，核心方法调用。
 				// Actually invoke the handler.
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 

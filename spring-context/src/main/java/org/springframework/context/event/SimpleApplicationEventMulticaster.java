@@ -152,7 +152,9 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	 * @since 4.1
 	 */
 	protected void invokeListener(ApplicationListener<?> listener, ApplicationEvent event) {
+		// 获取 ApplicationEventMulticaster 子类 SimpleApplicationEventMulticaster 的错误处理器。
 		ErrorHandler errorHandler = getErrorHandler();
+		// 如果监听器的运行抛出了异常，则会调用 handleError()，进行错误处理。
 		if (errorHandler != null) {
 			try {
 				doInvokeListener(listener, event);
@@ -169,7 +171,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private void doInvokeListener(ApplicationListener listener, ApplicationEvent event) {
 		try {
-			// 这里向 TransactionSynchronizationManager 注册了事件
+			// 监听器的方法的回调。spring事务中，也是通过这里向 TransactionSynchronizationManager 注册了事件
 			listener.onApplicationEvent(event);
 		}
 		catch (ClassCastException ex) {
