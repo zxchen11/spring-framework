@@ -176,7 +176,7 @@ public abstract class AbstractApplicationEventMulticaster
 		if (retriever != null) {
 			return retriever.getApplicationListeners();
 		}
-
+		// 这里使用了双检索
 		if (this.beanClassLoader == null ||
 				(ClassUtils.isCacheSafe(event.getClass(), this.beanClassLoader) &&
 						(sourceType == null || ClassUtils.isCacheSafe(sourceType, this.beanClassLoader)))) {
@@ -187,7 +187,7 @@ public abstract class AbstractApplicationEventMulticaster
 					return retriever.getApplicationListeners();
 				}
 				retriever = new ListenerRetriever(true);
-				// 获取所有匹配的监听器，最后把结果放入缓存中，下次直接从缓存中获取。
+				// TODO 获取所有匹配的监听器，最后把结果放入缓存中，下次直接从缓存中获取。
 				Collection<ApplicationListener<?>> listeners =
 						retrieveApplicationListeners(eventType, sourceType, retriever);
 				this.retrieverCache.put(cacheKey, retriever);
@@ -219,7 +219,7 @@ public abstract class AbstractApplicationEventMulticaster
 			listenerBeans = new LinkedHashSet<>(this.defaultRetriever.applicationListenerBeans);
 		}
 		for (ApplicationListener<?> listener : listeners) {
-			// 关键点在这里，supportsEvent() 中判断了是否支持这个事件
+			// TODO 关键点在这里，supportsEvent() 中判断了是否支持这个事件
 			if (supportsEvent(listener, eventType, sourceType)) {
 				if (retriever != null) {
 					retriever.applicationListeners.add(listener);
@@ -298,6 +298,7 @@ public abstract class AbstractApplicationEventMulticaster
 	protected boolean supportsEvent(
 			ApplicationListener<?> listener, ResolvableType eventType, @Nullable Class<?> sourceType) {
 
+		// TODO GenericApplicationListenerAdapter() 中获取了监听器支持的事件泛型类型。
 		GenericApplicationListener smartListener = (listener instanceof GenericApplicationListener ?
 				(GenericApplicationListener) listener : new GenericApplicationListenerAdapter(listener));
 		return (smartListener.supportsEventType(eventType) && smartListener.supportsSourceType(sourceType));

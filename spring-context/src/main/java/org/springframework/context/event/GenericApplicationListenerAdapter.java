@@ -16,8 +16,6 @@
 
 package org.springframework.context.event;
 
-import java.util.Map;
-
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -26,6 +24,8 @@ import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ConcurrentReferenceHashMap;
+
+import java.util.Map;
 
 /**
  * {@link GenericApplicationListener} adapter that determines supported event types
@@ -55,6 +55,7 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 	public GenericApplicationListenerAdapter(ApplicationListener<?> delegate) {
 		Assert.notNull(delegate, "Delegate listener must not be null");
 		this.delegate = (ApplicationListener<ApplicationEvent>) delegate;
+		// TODO 封装了监听器中支持的事件类型
 		this.declaredEventType = resolveDeclaredEventType(this.delegate);
 	}
 
@@ -97,8 +98,10 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 	private static ResolvableType resolveDeclaredEventType(ApplicationListener<ApplicationEvent> listener) {
 		ResolvableType declaredEventType = resolveDeclaredEventType(listener.getClass());
 		if (declaredEventType == null || declaredEventType.isAssignableFrom(ApplicationEvent.class)) {
+			// 如果不是一个代理对象，就会返回 getClass() 的到的反射类。
 			Class<?> targetClass = AopUtils.getTargetClass(listener);
 			if (targetClass != listener.getClass()) {
+				// TODO 获取监听器支持的事件类型。
 				declaredEventType = resolveDeclaredEventType(targetClass);
 			}
 		}
@@ -109,6 +112,7 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 	static ResolvableType resolveDeclaredEventType(Class<?> listenerType) {
 		ResolvableType eventType = eventTypeCache.get(listenerType);
 		if (eventType == null) {
+			// TODO 重点在这里，获取到监听器中的事件泛型类型。listenerType 是监听器的 Class 对象。
 			eventType = ResolvableType.forClass(listenerType).as(ApplicationListener.class).getGeneric();
 			eventTypeCache.put(listenerType, eventType);
 		}
