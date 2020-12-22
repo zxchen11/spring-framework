@@ -22,7 +22,7 @@ public class SystemUserServiceTest {
 
 	@Test
 	public void getUserCardVoTest(){
-		SystemUserCardVo userCardVo = service.getUserCardVo(1);
+		SystemUserCardVo userCardVo = service.getUserCardVo(3);
 		System.out.println(userCardVo);
 	}
 
