@@ -25,6 +25,12 @@ public class SystemUserServiceImpl implements SystemUserService {
 		return userCardVo;
 	}
 
+	@Transactional(rollbackFor = Exception.class)
+	@Override
+	public int addUserCardVo(SystemUserCardVo userCardVo) {
+		return systemUserDao.insertSelective(userCardVo);
+	}
+
 	@Override
 	public List<SystemUserCardVo> listUserCardVo() {
 		List<SystemUserCardVo> list = systemUserDao.listUserCardVo();

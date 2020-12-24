@@ -10,5 +10,7 @@ import java.util.List;
 public interface SystemUserService {
 	SystemUserCardVo getUserCardVo(long userId);
 
+	int addUserCardVo(SystemUserCardVo userCardVo);
+
 	List<SystemUserCardVo> listUserCardVo();
 }

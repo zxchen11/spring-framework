@@ -25,6 +25,14 @@ public class SystemUserServiceTest {
 		SystemUserCardVo userCardVo = service.getUserCardVo(3);
 		System.out.println(userCardVo);
 	}
+	@Test
+	public void addUserCardVoTest(){
+		final SystemUserCardVo cardVo = new SystemUserCardVo();
+		cardVo.setUserName("cc");
+		cardVo.setPasswrod("123");
+		int count = service.addUserCardVo(cardVo);
+		System.out.println(count);
+	}
 
 	@Test
 	public void listUserCardVo() {

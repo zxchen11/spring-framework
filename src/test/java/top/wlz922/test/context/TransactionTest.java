@@ -13,8 +13,8 @@ public class TransactionTest {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(GlobalTransactionConfig.class, AspectAnoConfiguration.class);
 		RoleService roleService = context.getBean(RoleService.class);
 		TRole role = new TRole();
-		role.setNote("hello");
-		role.setRoleName("world");
+		role.setRoleName("hello");
+		role.setNote("world");
 		roleService.addRole(role);
 	}
 
