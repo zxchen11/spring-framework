@@ -80,6 +80,7 @@ public abstract class AbstractTransactionManagementConfiguration implements Impo
 	@Bean(name = TransactionManagementConfigUtils.TRANSACTIONAL_EVENT_LISTENER_FACTORY_BEAN_NAME)
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public static TransactionalEventListenerFactory transactionalEventListenerFactory() {
+		// 事务事件监听工厂
 		return new TransactionalEventListenerFactory();
 	}
 

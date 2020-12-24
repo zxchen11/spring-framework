@@ -47,7 +47,7 @@ public class TransactionManagementConfigurationSelector extends AdviceModeImport
 	protected String[] selectImports(AdviceMode adviceMode) {
 		switch (adviceMode) {
 			case PROXY:
-				// 这里导入了两个类
+				// 这里导入了两个类，重点看 ProxyTransactionManagementConfiguration，这里注入了事务切面。
 				return new String[] {AutoProxyRegistrar.class.getName(),
 						ProxyTransactionManagementConfiguration.class.getName()};
 			case ASPECTJ:

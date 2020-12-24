@@ -179,6 +179,7 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 			if (txAttr != null) {
 				return txAttr;
 			}
+			// 到方法声明类中找是否有注解。
 			// Last fallback is the class of the original method.
 			txAttr = findTransactionAttribute(method.getDeclaringClass());
 			if (txAttr != null && ClassUtils.isUserLevelMethod(method)) {
