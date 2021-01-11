@@ -64,17 +64,20 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
 	 */
 	@Override
 	public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
+		// 获取 AdviceModeImportSelector 中的泛型类型。这里的泛型一定是一个注解。
 		Class<?> annType = GenericTypeResolver.resolveTypeArgument(getClass(), AdviceModeImportSelector.class);
 		Assert.state(annType != null, "Unresolvable type argument for AdviceModeImportSelector");
 
+		// 获取注解中的参数信息。
 		AnnotationAttributes attributes = AnnotationConfigUtils.attributesFor(importingClassMetadata, annType);
 		if (attributes == null) {
 			throw new IllegalArgumentException(String.format(
 					"@%s is not present on importing class '%s' as expected",
 					annType.getSimpleName(), importingClassMetadata.getClassName()));
 		}
-
+		// 获取参数枚举 adviceMode。
 		AdviceMode adviceMode = attributes.getEnum(getAdviceModeAttributeName());
+		// 调用 selectImports()。
 		String[] imports = selectImports(adviceMode);
 		if (imports == null) {
 			throw new IllegalArgumentException("Unknown AdviceMode: " + adviceMode);

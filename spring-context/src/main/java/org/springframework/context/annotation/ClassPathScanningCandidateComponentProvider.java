@@ -195,6 +195,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 */
 	@SuppressWarnings("unchecked")
 	protected void registerDefaultFilters() {
+		// 注册默认的过滤器
 		this.includeFilters.add(new AnnotationTypeFilter(Component.class));
 		ClassLoader cl = ClassPathScanningCandidateComponentProvider.class.getClassLoader();
 		try {
@@ -304,6 +305,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 			return addCandidateComponentsFromIndex(this.componentsIndex, basePackage);
 		}
 		else {
+			// TODO 重点 扫描候选组件。
 			return scanCandidateComponents(basePackage);
 		}
 	}
@@ -418,12 +420,15 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				if (traceEnabled) {
 					logger.trace("Scanning " + resource);
 				}
+				// 文件必须是可读的。
 				if (resource.isReadable()) {
 					try {
-						// 封装成ScannedGenericBeanDefinition，这里封装了包下所有的类信息
+						// MetadataReader 是读取元数据的类。内部封装了类文件的字节流信息、注解元数据信息等。
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
+						// TODO 通过过滤器来判断是否是候选组件。
 						if (isCandidateComponent(metadataReader)) {
-							// 创建BeanDefinition对象，将
+							// 创建BeanDefinition对象。ScannedGenericBeanDefinition 是其中一个实现类。
+							// ScannedGenericBeanDefinition 是基于 ASM ClassReader 读取类信息的，功能上与 AnnotatedGenericBeanDefinition 等效。
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 							sbd.setResource(resource);
 							sbd.setSource(resource);
@@ -489,6 +494,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				return false;
 			}
 		}
+		// 通过过滤器来判断是否是一个合格的组件。
 		for (TypeFilter tf : this.includeFilters) {
 			if (tf.match(metadataReader, getMetadataReaderFactory())) {
 				return isConditionMatch(metadataReader);

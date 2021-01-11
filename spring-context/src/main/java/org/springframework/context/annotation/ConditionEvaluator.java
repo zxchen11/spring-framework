@@ -78,33 +78,45 @@ class ConditionEvaluator {
 	 * @return if the item should be skipped
 	 */
 	public boolean shouldSkip(@Nullable AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
+		// 如果没有注解或者注解中不包含注解 @Conditional，则返回 false，即不应该跳过。
 		if (metadata == null || !metadata.isAnnotated(Conditional.class.getName())) {
 			return false;
 		}
 
+		// 如果配置阶段（解析配置、注册bean）是空
 		if (phase == null) {
+			// 注解元数据是 AnnotationMetadata 类型，且类中包含@Configuration、@Component、@ComponentScan、
+			// @Import、@ImportResource、@Bean 中的任一注解，则递归调用，参数配置阶段设置为 PARSE_CONFIGURATION（即解析配置）。
 			if (metadata instanceof AnnotationMetadata &&
 					ConfigurationClassUtils.isConfigurationCandidate((AnnotationMetadata) metadata)) {
 				return shouldSkip(metadata, ConfigurationPhase.PARSE_CONFIGURATION);
 			}
+			// 否则递归调用，参数配置阶段设置为 REGISTER_BEAN（即注册bean）
 			return shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN);
 		}
 
 		List<Condition> conditions = new ArrayList<>();
+		// 获取 @Conditional 注解的值，作为一个 List<String[]>。
 		for (String[] conditionClasses : getConditionClasses(metadata)) {
 			for (String conditionClass : conditionClasses) {
+				// 加载并通过反射实例化 Condition。将 Condition 暂存到 conditions。
 				Condition condition = getCondition(conditionClass, this.context.getClassLoader());
 				conditions.add(condition);
 			}
 		}
 
+		// 对条件进行排序，实现了 PriorityOrdered 或使用 @Order 注解。如果都没有，则默认为最小级别，即 Integer.MAX_VALUE。
 		AnnotationAwareOrderComparator.sort(conditions);
 
+		// 遍历 conditions，进行匹配。
 		for (Condition condition : conditions) {
 			ConfigurationPhase requiredPhase = null;
+			// 如果 Condition 是 ConfigurationCondition 类型，则强转，赋值给 requiredPhase。
 			if (condition instanceof ConfigurationCondition) {
 				requiredPhase = ((ConfigurationCondition) condition).getConfigurationPhase();
 			}
+			// requiredPhase == phase，这个全等的比较可以提高效率，参数中的 phase，是一个枚举值，全等比较非常快速，如果不相等，就不会再进行后面的比较了。
+			// 如果前面的条件成立，则调用 condition.matches()，进行匹配，如果匹配为 false，则返回 true，表示应该跳过，否则返回 false。
 			if ((requiredPhase == null || requiredPhase == phase) && !condition.matches(this.context, metadata)) {
 				return true;
 			}
@@ -115,6 +127,7 @@ class ConditionEvaluator {
 
 	@SuppressWarnings("unchecked")
 	private List<String[]> getConditionClasses(AnnotatedTypeMetadata metadata) {
+		// 获取注解元数据中的 @Conditional 的值，作为一个 List<String[]> 返回。
 		MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(Conditional.class.getName(), true);
 		Object values = (attributes != null ? attributes.get("value") : null);
 		return (List<String[]>) (values != null ? values : Collections.emptyList());

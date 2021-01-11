@@ -355,6 +355,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * @param defaults the defaults to apply
 	 */
 	public void applyDefaults(BeanDefinitionDefaults defaults) {
+		// 懒加载、自动注入、依赖检查、初始化方法名称、销毁方法名称等的默认设置。
 		setLazyInit(defaults.isLazyInit());
 		setAutowireMode(defaults.getAutowireMode());
 		setDependencyCheck(defaults.getDependencyCheck());

@@ -88,11 +88,13 @@ abstract class ConfigurationClassUtils {
 		}
 
 		AnnotationMetadata metadata;
+		// 以下的几个 if 语句，主要是获取类上的注解元数据信息。
+		// 如果是 AnnotatedBeanDefinition 类型，则获取到注解元数据。
 		if (beanDef instanceof AnnotatedBeanDefinition &&
 				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
 			// Can reuse the pre-parsed metadata from the given BeanDefinition...
 			metadata = ((AnnotatedBeanDefinition) beanDef).getMetadata();
-		}
+		} // 如果是 AbstractBeanDefinition 类型，则获取到类的 Class 对象，将 Class 包装为 StandardAnnotationMetadata，赋值到 metadata。
 		else if (beanDef instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) beanDef).hasBeanClass()) {
 			// Check already loaded Class if present...
 			// since we possibly can't even load the class file for this Class.
@@ -113,11 +115,12 @@ abstract class ConfigurationClassUtils {
 			}
 		}
 
-		// 类上是否包含@Configuration
+		// TODO 重点 类上是否包含@Configuration，如果包含，将对应键值标识为 full，设置到 BeanDefinition 中，表示这是一个带有 @Configuration 注解的配置类。
 		if (isFullConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
-		// 类上是包含@Component、@ComponentScan、@Import、@ImportResource。方法上包含@Bean
+		// TODO 重点 类上包含@Component、@ComponentScan、@Import、@ImportResource，或方法上包含 @Bean 时返回true。
+		//  如果这个条件成立，则将对应键值标识为 lite，设置到 BeanDefinition 中，表示带有以上注解。
 		else if (isLiteConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
@@ -125,12 +128,14 @@ abstract class ConfigurationClassUtils {
 			return false;
 		}
 
+		// 获取配置类上的 @Order 注解的值，并将值封装到 BeanDefinition 对象的属性中。
 		// It's a full or lite configuration candidate... Let's determine the order value, if any.
 		Integer order = getOrder(metadata);
 		if (order != null) {
 			beanDef.setAttribute(ORDER_ATTRIBUTE, order);
 		}
 
+		// 以上条件成立则返回 true。
 		return true;
 	}
 
@@ -153,6 +158,7 @@ abstract class ConfigurationClassUtils {
 	 * configuration class, including cross-method call interception
 	 */
 	public static boolean isFullConfigurationCandidate(AnnotationMetadata metadata) {
+		// 判断类的元数据中是否包含注解 @Configuration。
 		return metadata.isAnnotated(Configuration.class.getName());
 	}
 
@@ -165,12 +171,14 @@ abstract class ConfigurationClassUtils {
 	 * configuration class, just registering it and scanning it for {@code @Bean} methods
 	 */
 	public static boolean isLiteConfigurationCandidate(AnnotationMetadata metadata) {
+		// 如果当前类是一个接口，直接返回false。
 		// Do not consider an interface or an annotation...
 		if (metadata.isInterface()) {
 			return false;
 		}
 
-		// 类上是包含@Component、@ComponentScan、@Import、@ImportResource。方法上包含@Bean
+		// 类上是包含@Component、@ComponentScan、@Import、@ImportResource注解，或者法上包含@Bean。包含任意一个注解则返回 true。
+		// 此变量的值是在静态代码块中进行的初始化。
 		// Any of the typical annotations found?
 		for (String indicator : candidateIndicators) {
 			if (metadata.isAnnotated(indicator)) {
@@ -180,7 +188,7 @@ abstract class ConfigurationClassUtils {
 
 		// Finally, let's look for @Bean methods...
 		try {
-			// @Bean的支持
+			// 类方法中是否包含注解 @Bean，有任一方法标注了此注解，则返回 true。
 			return metadata.hasAnnotatedMethods(Bean.class.getName());
 		}
 		catch (Throwable ex) {

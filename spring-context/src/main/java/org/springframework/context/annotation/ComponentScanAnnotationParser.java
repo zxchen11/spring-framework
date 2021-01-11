@@ -65,10 +65,11 @@ class ComponentScanAnnotationParser {
 
 
 	public Set<BeanDefinitionHolder> parse(AnnotationAttributes componentScan, final String declaringClass) {
+		// TODO 创建一个扫描器，这个类很重要。
 		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this.registry,
 				componentScan.getBoolean("useDefaultFilters"), this.environment, this.resourceLoader);
 
-		//从这里一直到此方法最后一行，都是在解析注解中的属性值，并封装到ClassPathBeanDefinitionScanner的对应属性中，最后根据
+		// 从这里一直到此方法最后一行，都是在解析注解中的属性值，并封装到ClassPathBeanDefinitionScanner的对应属性中，最后根据
 		// 配置的扫描包路径进行扫描
 		Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("nameGenerator");
 		boolean useInheritedGenerator = (BeanNameGenerator.class == generatorClass);
@@ -86,22 +87,26 @@ class ComponentScanAnnotationParser {
 
 		scanner.setResourcePattern(componentScan.getString("resourcePattern"));
 
+		// 注册包含过滤器
 		for (AnnotationAttributes filter : componentScan.getAnnotationArray("includeFilters")) {
 			for (TypeFilter typeFilter : typeFiltersFor(filter)) {
 				scanner.addIncludeFilter(typeFilter);
 			}
 		}
+		// 注册排除过滤器
 		for (AnnotationAttributes filter : componentScan.getAnnotationArray("excludeFilters")) {
 			for (TypeFilter typeFilter : typeFiltersFor(filter)) {
 				scanner.addExcludeFilter(typeFilter);
 			}
 		}
 
+		// 是否懒加载
 		boolean lazyInit = componentScan.getBoolean("lazyInit");
 		if (lazyInit) {
 			scanner.getBeanDefinitionDefaults().setLazyInit(true);
 		}
 
+		// 基本包路径
 		Set<String> basePackages = new LinkedHashSet<>();
 		String[] basePackagesArray = componentScan.getStringArray("basePackages");
 		for (String pkg : basePackagesArray) {
@@ -116,13 +121,14 @@ class ComponentScanAnnotationParser {
 			basePackages.add(ClassUtils.getPackageName(declaringClass));
 		}
 
+		// TODO 这里要注意一下。添加了一个排除过滤器，排除扫描本类。
 		scanner.addExcludeFilter(new AbstractTypeHierarchyTraversingFilter(false, false) {
 			@Override
 			protected boolean matchClassName(String className) {
 				return declaringClass.equals(className);
 			}
 		});
-		// 执行扫描
+		// TODO 重点 执行扫描
 		return scanner.doScan(StringUtils.toStringArray(basePackages));
 	}
 

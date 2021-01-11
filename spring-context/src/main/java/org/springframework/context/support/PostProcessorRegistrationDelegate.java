@@ -59,6 +59,7 @@ final class PostProcessorRegistrationDelegate {
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
 			// 对参数中传入的beanFactoryPostProcessors优先执行BeanDefinitionRegistryPostProcessor的方法，然后添加到registryProcessors中。
+			// 这里的 beanFactoryPostProcessors 是前面参数中传递过来的，第一次进来它的值是一个空集合。
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
@@ -290,6 +291,7 @@ final class PostProcessorRegistrationDelegate {
 	private static void invokeBeanDefinitionRegistryPostProcessors(
 			Collection<? extends BeanDefinitionRegistryPostProcessor> postProcessors, BeanDefinitionRegistry registry) {
 
+		// 遍历所有的 BeanDefinitionRegistryPostProcessor，调用 postProcessBeanDefinitionRegistry()。
 		for (BeanDefinitionRegistryPostProcessor postProcessor : postProcessors) {
 			postProcessor.postProcessBeanDefinitionRegistry(registry);
 		}

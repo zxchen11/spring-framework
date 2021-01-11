@@ -215,7 +215,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 					"postProcessBeanFactory already called on this post-processor against " + registry);
 		}
 		this.registriesPostProcessed.add(registryId);
-
+		// TODO 重点：具体的处理方法。
 		processConfigBeanDefinitions(registry);
 	}
 
@@ -258,7 +258,8 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
 				}
 			}
-			//检查给定的bean定义是否适合配置类（或在配置/组件类中声明的嵌套组件类，*也要自动注册），并进行相应标记。
+			//检查给定的bean定义是否是一个配置类，即类中是否包含 @Configuration、@Component、@ComponentScan、
+			// @Import、@ImportResource、@Bean 注解。包含任一注解，即为 true。将这些满足条件的 BeanDefinition 搜集起来。
 			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
@@ -294,16 +295,20 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			this.environment = new StandardEnvironment();
 		}
 
+		// 配置类解析类。
 		// Parse each @Configuration class
 		ConfigurationClassParser parser = new ConfigurationClassParser(
 				this.metadataReaderFactory, this.problemReporter, this.environment,
 				this.resourceLoader, this.componentScanBeanNameGenerator, registry);
 
+		// 候选的配置类，即还未解析的配置。
 		Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
+		// 已解析的配置
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
 		do {
 			// TODO 重要程度：5 ConfigurationClassParser的parse方法调用，这里解析了一系列的注解
 			parser.parse(candidates);
+			// 数据校验
 			parser.validate();
 
 			Set<ConfigurationClass> configClasses = new LinkedHashSet<>(parser.getConfigurationClasses());
@@ -316,6 +321,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
 			// TODO 在上面的扫描中，根据扫描到的配置类，继续根据配置类中的配置信息，去扫描、装载BeanDefinition
+			//  注意：@Component 注解的类，在 parse() 的时候就已经注册了，这里装载的是 @Bean、@Import、@ImportResource、ImportSelector中导入的类。
 			this.reader.loadBeanDefinitions(configClasses);
 			alreadyParsed.addAll(configClasses);
 

@@ -102,6 +102,7 @@ class ConfigurationClassBeanDefinitionReader {
 	public void loadBeanDefinitions(Set<ConfigurationClass> configurationModel) {
 		TrackedConditionEvaluator trackedConditionEvaluator = new TrackedConditionEvaluator();
 		for (ConfigurationClass configClass : configurationModel) {
+			// TODO 重点 具体的装载方法。
 			loadBeanDefinitionsForConfigurationClass(configClass, trackedConditionEvaluator);
 		}
 	}
@@ -352,6 +353,7 @@ class ConfigurationClassBeanDefinitionReader {
 	}
 
 	private void loadBeanDefinitionsFromRegistrars(Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> registrars) {
+		// 调用 ImportBeanDefinitionRegistrar 的 registerBeanDefinitions()。进行 BeanDefinition 的注册。
 		registrars.forEach((registrar, metadata) ->
 				registrar.registerBeanDefinitions(metadata, this.registry));
 	}

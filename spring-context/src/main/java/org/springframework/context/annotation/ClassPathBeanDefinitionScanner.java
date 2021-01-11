@@ -158,7 +158,9 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 		this.registry = registry;
 
+		// 如果需要使用默认的过滤器，这里会注册默认的过滤器。
 		if (useDefaultFilters) {
+			// 注册默认的过滤器
 			registerDefaultFilters();
 		}
 		setEnvironment(environment);
@@ -278,11 +280,12 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
 				// 对不同类型的BeanDefinition做不同的处理。
 				if (candidate instanceof AbstractBeanDefinition) {
+					// 懒加载、自动注入、依赖检查、初始化方法名称、销毁方法名称等的默认设置。
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
 				// 对不同类型的BeanDefinition做不同的处理，@Lazy、@DependOn等注解信息封装就是在这里设置的。
 				if (candidate instanceof AnnotatedBeanDefinition) {
-					// 一些注解信息的封装
+					// @Lazy、@Primary、@DependsOn、@Role、@Description 注解信息的解析，并封装到 BeanDefinition
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
 				// 校验是否是需要实例化的BeanDefinition，如果为true，则将BeanDefinition包装成BeanDefinitionHolder（这个类里封装了实例名称、别名信息）
@@ -291,7 +294,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
-					// 注册BeanDefinition
+					// TODO 注册BeanDefinition
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}
@@ -306,6 +309,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @param beanName the generated bean name for the given bean
 	 */
 	protected void postProcessBeanDefinition(AbstractBeanDefinition beanDefinition, String beanName) {
+		// 懒加载、自动注入、依赖检查、初始化方法名称、销毁方法名称等的默认设置。
 		beanDefinition.applyDefaults(this.beanDefinitionDefaults);
 		if (this.autowireCandidatePatterns != null) {
 			beanDefinition.setAutowireCandidate(PatternMatchUtils.simpleMatch(this.autowireCandidatePatterns, beanName));

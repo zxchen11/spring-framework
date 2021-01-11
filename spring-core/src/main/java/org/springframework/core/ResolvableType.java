@@ -687,7 +687,7 @@ public class ResolvableType implements Serializable {
 				for (int i = 0; i < generics.length; i++) {
 					generics[i] = ResolvableType.forType(typeParams[i], this);
 				}
-			}
+			}// TODO 获取父类中的泛型
 			else if (this.type instanceof ParameterizedType) {
 				Type[] actualTypeArguments = ((ParameterizedType) this.type).getActualTypeArguments();
 				generics = new ResolvableType[actualTypeArguments.length];

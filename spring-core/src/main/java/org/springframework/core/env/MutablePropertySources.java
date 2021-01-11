@@ -41,6 +41,7 @@ import org.springframework.lang.Nullable;
  */
 public class MutablePropertySources implements PropertySources {
 
+	/** PropertyList 集合 */
 	private final List<PropertySource<?>> propertySourceList = new CopyOnWriteArrayList<>();
 
 
