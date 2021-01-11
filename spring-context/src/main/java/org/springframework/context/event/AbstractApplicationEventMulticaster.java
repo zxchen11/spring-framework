@@ -176,7 +176,7 @@ public abstract class AbstractApplicationEventMulticaster
 		if (retriever != null) {
 			return retriever.getApplicationListeners();
 		}
-		// 这里使用了双检索
+		// 这里使用了双检锁
 		if (this.beanClassLoader == null ||
 				(ClassUtils.isCacheSafe(event.getClass(), this.beanClassLoader) &&
 						(sourceType == null || ClassUtils.isCacheSafe(sourceType, this.beanClassLoader)))) {
