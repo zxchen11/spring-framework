@@ -494,7 +494,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
-			// 注册一些对事件、监听器等的支持
 			prepareBeanFactory(beanFactory);
 
 			try {
@@ -516,6 +515,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				initMessageSource();
 
 				// 初始化ApplicationEventMulticaster。 如果上下文中未定义，则使用SimpleApplicationEventMulticaster。
+				// 这里是监听器的支持，监听器时间多播。
 				// Initialize event multicaster for this context.
 				initApplicationEventMulticaster();
 
