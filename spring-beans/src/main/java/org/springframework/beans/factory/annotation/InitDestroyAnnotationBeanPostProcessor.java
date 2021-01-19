@@ -364,7 +364,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 		}
 
 		public void invoke(Object target) throws Throwable {
-			//执行目标对象的销毁方法。
+			//执行目标对象的方法。
 			ReflectionUtils.makeAccessible(this.method);
 			this.method.invoke(target, (Object[]) null);
 		}

@@ -67,7 +67,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * 三级缓存，在单例bean刚刚创建完成时，会将其封装成一个ObjectFactory对象，存储到这个容器中。键值是beanName。
 	 * 从源码中可以看到，实际上是提供了一些通过BeanPostProcessor进行的扩展操作。这里不会执行，只是把这个扩展操作流程封装起来。
 	 * 实际上，这里封装的一个函数式接口，在这里可以通过BeanPostProcessor进行一些扩展操作，其节点是bean实例化之后，
-	 * 在真正getBean时，会触发调用。 */
+	 * 在真正getBean时，会触发调用。如果在调用前完成了依赖注入等操作，也会放入到一级缓存，并移除二三级缓存。 */
 	/** Cache of singleton factories: bean name to ObjectFactory. */
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 

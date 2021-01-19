@@ -240,7 +240,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 		/*
 		TODO 这里多级缓存用于解决循环依赖问题。
-			注：循环依赖只能是属性见的依赖，不能是构造函数中参数的循环依赖。
+			注：循环依赖只能是属性间的依赖，不能是构造函数中参数的循环依赖。
 		    从缓存（一级二级三级缓存依次获取，获取到就返回）中获取单例实例，如果获取到并且是无参构造函数，则将bean变量的值赋值。
 		 */
 		// Eagerly check singleton cache for manually registered singletons.
