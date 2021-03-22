@@ -81,7 +81,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	 */
 	public List<Advisor> buildAspectJAdvisors() {
 		List<String> aspectNames = this.aspectBeanNames;
-		// 第一次进来时为空，这里用到了双检索
+		// 第一次进来时为空，这里用到了双检锁
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
