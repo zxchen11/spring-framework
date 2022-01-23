@@ -12,7 +12,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("io.spring.gradle:propdeps-plugin:0.0.9.RELEASE")
-		classpath("org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.16")
+//		classpath("org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.16")
 	}
 }
 
@@ -20,8 +20,9 @@ buildscript {
 plugins {
 	id "io.spring.dependency-management" version "1.0.5.RELEASE" apply false
 	id "org.jetbrains.kotlin.jvm" version "1.2.71" apply false
-	id "org.jetbrains.dokka" version "0.9.17"
-	id "org.asciidoctor.convert" version "1.5.8"
+//	id "org.jetbrains.dokka" version "0.9.17"
+//	id "org.asciidoctor.convert" version "1.5.8"
+	id "maven"
 }
 
 ext {
@@ -67,7 +68,7 @@ configure(allprojects) { project ->
 
 	apply plugin: "java"
 	apply plugin: "kotlin"
-	apply plugin: "checkstyle"
+//	apply plugin: "checkstyle"
 	apply plugin: "propdeps"
 	apply plugin: "test-source-set-dependencies"
 	apply plugin: "io.spring.dependency-management"
@@ -149,10 +150,10 @@ configure(allprojects) { project ->
 		reports.junitXml.setDestination(file("$buildDir/test-results"))
 	}
 
-	checkstyle {
-		toolVersion = "8.14"
-		configDir = rootProject.file("src/checkstyle")
-	}
+//	checkstyle {
+//		toolVersion = "8.14"
+//		configDir = rootProject.file("src/checkstyle")
+//	}
 
 	repositories {
 		maven { url "https://maven.aliyun.com/repository/spring-plugin" }
@@ -178,7 +179,7 @@ configure(allprojects) { project ->
 		// JSR-305 only used for non-required meta-annotations
 		compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 		testCompileOnly("com.google.code.findbugs:jsr305:3.0.2")
-		checkstyle("io.spring.javaformat:spring-javaformat-checkstyle:0.0.5")
+//		checkstyle("io.spring.javaformat:spring-javaformat-checkstyle:0.0.5")
 	}
 
 	ext.javadocLinks = [
@@ -202,7 +203,22 @@ configure(allprojects) { project ->
 }
 
 configure(subprojects - project(":spring-build-src")) { subproject ->
-	apply from: "${gradleScriptDir}/publish-maven.gradle"
+//	apply from: "${gradleScriptDir}/publish-maven.gradle"
+	apply plugin: "maven"
+
+	javadoc.enabled(false)
+
+	def localMavenRepo = 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
+	uploadArchives {
+		repositories {
+			mavenDeployer {
+				repository(url: localMavenRepo)
+				pom.groupId = "$project.group"
+				pom.artifactId = "$project.name"
+				pom.version = "$project.version"
+			}
+		}
+	}
 
 	jar {
 		manifest.attributes["Implementation-Title"] = subproject.name
@@ -258,7 +274,7 @@ configure(rootProject) {
 
 	apply plugin: "groovy"
 	apply from: "${gradleScriptDir}/jdiff.gradle"
-	apply from: "${gradleScriptDir}/docs.gradle"
+//	apply from: "${gradleScriptDir}/docs.gradle"
 
 	dependencyManagement {
 		imports {
@@ -289,9 +305,9 @@ configure(rootProject) {
 	}
 
 	artifacts {
-		archives docsZip
-		archives schemaZip
-		archives distZip
+//		archives docsZip
+//		archives schemaZip
+//		archives distZip
 	}
 
 	wrapper {
