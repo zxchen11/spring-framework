@@ -8,7 +8,7 @@ spring源码阅读，理解spring各个模块的实现原理，实现流程。�
 
 ## 源码下载及编译
 
-1. 源码下载：git clone --branch v5.1.3.RELEASE https://gitee.com/wanglizhi00/spring-framework.git
+1. 源码下载：`git clone --branch v5.1.3.RELEASE https://gitee.com/wanglizhi00/spring-framework.git`
 
 2. 源码编译：
     
