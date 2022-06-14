@@ -22,6 +22,7 @@ public class BeanMyTest {
 	}
 
 	public static void main(String[] args) {
+
 		BeanFactory bf = new ClassPathXmlApplicationContext("beanTestFactory.xml");
 		BeanMyTest beanMyTest = (BeanMyTest) bf.getBean("beanMyTest");
 		System.out.println("beanStr:" + beanMyTest.getBeanStr());
